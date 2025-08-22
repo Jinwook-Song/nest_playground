@@ -8,42 +8,43 @@ import {
   Body,
   Query,
 } from '@nestjs/common';
+import { MoviesService } from './movies.service';
+import { Movie } from './entities/movie.entity';
 
 @Controller('movies')
 export class MoviesController {
+  constructor(private readonly moviesService: MoviesService) {}
+
   @Get()
-  getAll() {
-    return '모든 영화 목록';
+  getAll(): Movie[] {
+    return this.moviesService.getAll();
   }
 
   @Get('search')
-  search(@Query('year') searchingYear: string) {
-    return `${searchingYear}년도에 해당하는 영화 검색 결과`;
+  search(@Query('year') searchingYear: string): Movie[] {
+    return this.moviesService.search(searchingYear);
   }
 
   @Get(':id')
-  getOne(@Param('id') movieId: string) {
-    return `ID: ${movieId}인 영화 정보`;
+  getOne(@Param('id') movieId: string): Movie {
+    return this.moviesService.getOne(movieId);
   }
 
   @Post()
-  create(@Body() movieData) {
-    return {
-      message: '영화가 생성되었습니다',
-      data: movieData,
-    };
+  create(@Body() movieData: Omit<Movie, 'id'>): Movie {
+    return this.moviesService.create(movieData);
   }
 
   @Delete(':id')
-  remove(@Param('id') movieId: string) {
-    return `ID: ${movieId}인 영화가 삭제되었습니다`;
+  remove(@Param('id') movieId: string): boolean {
+    return this.moviesService.remove(movieId);
   }
 
   @Patch(':id')
-  patch(@Param('id') movieId: string, @Body() updateData) {
-    return {
-      message: `ID: ${movieId}인 영화가 수정되었습니다`,
-      data: updateData,
-    };
+  patch(
+    @Param('id') movieId: string,
+    @Body() updateData: Partial<Omit<Movie, 'id'>>,
+  ): Movie {
+    return this.moviesService.patch(movieId, updateData);
   }
 }
