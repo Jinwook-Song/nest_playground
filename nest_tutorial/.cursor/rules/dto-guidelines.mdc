@@ -1,0 +1,60 @@
+---
+globs: *.dto.ts
+description: DTO 파일 작성 시 따라야 할 가이드라인
+---
+
+# DTO 작성 가이드라인
+
+## 📝 기본 규칙
+
+- DTO 클래스명은 `[Feature][Action]Dto` 형식 (예: `CreateMovieDto`, `UpdateMovieDto`)
+- 모든 필드는 `readonly`로 선언
+- validation 데코레이터는 적절히 사용
+
+## 🔧 Create DTO 예시
+
+[create-movie.dto.ts](mdc:src/movies/dtos/create-movie.dto.ts)를 참고하세요:
+
+```typescript
+import { IsString, IsNumber } from 'class-validator';
+import { Movie } from '../entities/movie.entity';
+
+export class CreateMovieDto implements Omit<Movie, 'id'> {
+  @IsString()
+  readonly title: string;
+
+  @IsNumber()
+  readonly year: number;
+
+  @IsString({ each: true })
+  readonly genres: string[];
+}
+```
+
+## 🔄 Update DTO 예시
+
+[update-movie.dto.ts](mdc:src/movies/dtos/update-movie.dto.ts)를 참고하세요:
+
+```typescript
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateMovieDto } from './create-movie.dto';
+
+export class UpdateMovieDto extends PartialType(CreateMovieDto) {}
+```
+
+## ✅ Validation 데코레이터
+
+- `@IsString()`: 문자열 검증
+- `@IsNumber()`: 숫자 검증
+- `@IsOptional()`: 선택적 필드 (PartialType에서 자동 적용)
+- `@IsArray()`: 배열 검증
+- `@IsString({ each: true })`: 문자열 배열 검증
+- `@IsEmail()`: 이메일 형식 검증
+- `@MinLength(n)`, `@MaxLength(n)`: 길이 제한
+
+## 🚫 피해야 할 것들
+
+- DTO에서 비즈니스 로직 구현
+- Entity를 직접 DTO로 사용
+- validation 없는 필드 방치
+- 수동으로 `@IsOptional()` 추가 (PartialType 사용 시)

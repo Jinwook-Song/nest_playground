@@ -1,0 +1,73 @@
+---
+globs: *.controller.ts
+description: Controller 클래스 작성 패턴과 REST API 설계 가이드
+---
+
+# Controller 패턴 가이드
+
+## 🏗️ 기본 구조
+
+[movies.controller.ts](mdc:src/movies/movies.controller.ts)를 참고하세요:
+
+```typescript
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from '@nestjs/common';
+
+@Controller('features')
+export class FeatureController {
+  constructor(private readonly featureService: FeatureService) {}
+
+  @Get()
+  getAll(): Feature[] {}
+
+  @Get(':id')
+  getOne(@Param('id') id: string): Feature {}
+
+  @Post()
+  create(@Body() data: CreateFeatureDto): Feature {}
+
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() data: UpdateFeatureDto): Feature {}
+
+  @Delete(':id')
+  remove(@Param('id') id: string): boolean {}
+}
+```
+
+## 🌐 REST API 규칙
+
+- `GET /features` - 전체 목록 조회
+- `GET /features/:id` - 특정 항목 조회
+- `POST /features` - 새 항목 생성
+- `PATCH /features/:id` - 부분 수정 (권장)
+- `PUT /features/:id` - 전체 수정
+- `DELETE /features/:id` - 삭제
+
+## 🔍 특수 엔드포인트
+
+```typescript
+@Get('search')
+search(@Query('keyword') keyword: string): Feature[] {
+  return this.featureService.search(keyword);
+}
+```
+
+**주의**: 특수 엔드포인트는 동적 라우트(`:id`)보다 먼저 선언해야 합니다.
+
+## 📝 파라미터 바인딩
+
+- `@Param('id')`: URL 파라미터
+- `@Body()`: 요청 본문
+- `@Query('name')`: 쿼리 파라미터
+- `@Headers('authorization')`: 헤더 값
+
+## 🚨 에러 응답
+
+컨트롤러에서는 에러 처리를 서비스에 위임하고, 적절한 HTTP 상태 코드가 자동으로 반환됩니다.
+
+## 📋 베스트 프랙티스
+
+- 서비스 로직은 컨트롤러에 구현하지 않기
+- DTO 타입 명시적 선언
+- 의존성 주입으로 서비스 사용
+- 일관된 응답 형식 유지
+- PATCH vs PUT: 부분 수정은 PATCH 사용

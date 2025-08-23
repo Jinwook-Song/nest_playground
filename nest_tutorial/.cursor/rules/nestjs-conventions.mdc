@@ -1,0 +1,78 @@
+---
+alwaysApply: true
+description: NestJS 프로젝트에서 따라야 할 기본 관습과 코딩 규칙
+---
+
+# NestJS 개발 관습 및 규칙
+
+## 📦 패키지 매니저
+
+- **pnpm 사용**: npm 대신 pnpm을 사용합니다
+- 명령어: `pnpm add`, `pnpm install`, `pnpm start:dev`
+
+## 🏗️ 프로젝트 구조
+
+프로젝트의 메인 진입점은 [main.ts](mdc:src/main.ts)이고, 루트 모듈은 [app.module.ts](mdc:src/app.module.ts)입니다.
+
+```
+src/
+├── main.ts              # 애플리케이션 진입점
+├── app.module.ts        # 루트 모듈
+└── [feature]/           # 기능별 폴더
+    ├── [feature].controller.ts
+    ├── [feature].service.ts
+    ├── [feature].module.ts
+    ├── dtos/
+    │   ├── create-[feature].dto.ts
+    │   └── update-[feature].dto.ts
+    └── entities/
+        └── [feature].entity.ts
+```
+
+## 🎯 명명 규칙
+
+- **파일명**: kebab-case (예: `movie-review.controller.ts`)
+- **클래스명**: PascalCase (예: `MovieReviewController`)
+- **변수명**: camelCase (예: `movieData`)
+- **상수명**: UPPER_SNAKE_CASE (예: `DEFAULT_PORT`)
+
+## 🏷️ 데코레이터 사용법
+
+- **컨트롤러**: `@Controller('resource-name')`
+- **서비스**: `@Injectable()`
+- **모듈**: `@Module({})`
+- **HTTP 메서드**: `@Get()`, `@Post()`, `@Patch()`, `@Delete()`
+- **파라미터**: `@Param('id')`, `@Body()`, `@Query()`
+
+## 📝 DTO 관습
+
+- **PartialType 사용**: 업데이트 DTO는 `PartialType(CreateDto)` 확장
+- **Validation**: class-validator 데코레이터 사용
+- **readonly 속성**: DTO 필드는 readonly로 선언
+
+## 🛡️ Validation 설정
+
+[main.ts](mdc:src/main.ts)에서 글로벌 ValidationPipe 설정:
+
+```typescript
+app.useGlobalPipes(
+  new ValidationPipe({
+    whitelist: true, // 정의된 필드만 허용
+    forbidNonWhitelisted: true, // 정의되지 않은 필드 시 에러
+    transform: true, // 타입 자동 변환
+  }),
+);
+```
+
+## 🚨 에러 처리
+
+- **NotFoundException**: 리소스를 찾을 수 없을 때
+- **BadRequestException**: 잘못된 요청일 때
+- **명확한 에러 메시지**: `Movie with ID ${id} not found`
+
+## 📋 코드 스타일
+
+- **세미콜론**: 항상 사용
+- **따옴표**: 작은따옴표(`'`) 사용
+- **들여쓰기**: 2칸 공백
+- **trailing comma**: 객체와 배열 마지막 요소 뒤 콤마 사용

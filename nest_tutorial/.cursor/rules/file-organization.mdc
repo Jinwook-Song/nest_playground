@@ -1,0 +1,78 @@
+---
+globs: src/**/*
+description: 파일 구성과 import 순서 가이드라인
+---
+
+# 파일 구성 및 Import 가이드
+
+## 📁 디렉토리 구조
+
+현재 프로젝트 구조를 기반으로:
+
+```
+src/
+├── main.ts              # [main.ts](mdc:src/main.ts)
+├── app.module.ts         # [app.module.ts](mdc:src/app.module.ts)
+├── common/               # 공통 유틸리티 (필요시 생성)
+│   ├── guards/
+│   ├── interceptors/
+│   └── filters/
+└── [feature]/            # 예: [movies/](mdc:src/movies/)
+    ├── [feature].controller.ts    # [movies.controller.ts](mdc:src/movies/movies.controller.ts)
+    ├── [feature].service.ts       # [movies.service.ts](mdc:src/movies/movies.service.ts)
+    ├── [feature].module.ts        # (필요시 생성)
+    ├── dtos/
+    │   ├── create-[feature].dto.ts # [create-movie.dto.ts](mdc:src/movies/dtos/create-movie.dto.ts)
+    │   └── update-[feature].dto.ts # [update-movie.dto.ts](mdc:src/movies/dtos/update-movie.dto.ts)
+    ├── entities/
+    │   └── [feature].entity.ts    # [movie.entity.ts](mdc:src/movies/entities/movie.entity.ts)
+    └── interfaces/
+        └── [feature].interface.ts
+```
+
+## 📦 Import 순서
+
+1. **Node.js 내장 모듈**
+2. **외부 라이브러리** (nestjs, class-validator 등)
+3. **프로젝트 내 공통 모듈**
+4. **상대 경로 import**
+
+```typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { IsString, IsNumber } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+
+import { CommonUtility } from '../common/utility';
+
+import { CreateMovieDto } from './dtos/create-movie.dto';
+import { Movie } from './entities/movie.entity';
+```
+
+## 📝 파일명 규칙
+
+- **Controller**: `[feature].controller.ts`
+- **Service**: `[feature].service.ts`
+- **Module**: `[feature].module.ts`
+- **DTO**: `[action]-[feature].dto.ts`
+- **Entity**: `[feature].entity.ts`
+- **Test**: `[feature].[type].spec.ts`
+
+## 🏷️ Export 패턴
+
+```typescript
+// 단일 export
+export class MovieService {}
+
+// 다중 export (barrel export)
+export * from './movie.controller';
+export * from './movie.service';
+export * from './movie.module';
+```
+
+## 📋 베스트 프랙티스
+
+- 기능별로 폴더 분리
+- 파일명은 명확하고 일관성 있게
+- 상대 경로보다는 절대 경로 선호 (설정 시)
+- index.ts 파일로 barrel export 활용
+- pnpm 사용으로 의존성 관리

@@ -1,0 +1,81 @@
+---
+description: pnpm 명령어와 NestJS 개발 환경 가이드
+---
+
+# PNPM & NestJS 개발 환경 가이드
+
+## 📦 PNPM 기본 명령어
+
+```bash
+# 의존성 설치
+pnpm install
+
+# 패키지 추가
+pnpm add @nestjs/mapped-types
+pnpm add -D @types/node
+
+# 패키지 제거
+pnpm remove package-name
+
+# 스크립트 실행
+pnpm start          # 프로덕션 모드
+pnpm start:dev      # 개발 모드 (권장)
+pnpm start:debug    # 디버그 모드
+
+# 빌드 및 테스트
+pnpm build
+pnpm test
+pnpm test:watch
+pnpm test:e2e
+```
+
+## 🚀 NestJS 개발 워크플로우
+
+1. **개발 시작**: `pnpm start:dev`
+2. **새 기능 개발**:
+   - Entity 생성 → DTO 생성 → Service 구현 → Controller 구현
+3. **의존성 추가**: `pnpm add [package-name]`
+4. **코드 포맷팅**: `pnpm format`
+5. **린팅**: `pnpm lint`
+
+## 📋 자주 사용하는 NestJS 패키지
+
+```bash
+# 기본 패키지들
+pnpm add @nestjs/common @nestjs/core @nestjs/platform-express
+
+# Validation
+pnpm add class-validator class-transformer
+
+# Mapped Types (PartialType)
+pnpm add @nestjs/mapped-types
+
+# 데이터베이스 (필요시)
+pnpm add @nestjs/typeorm typeorm mysql2
+
+# 환경 설정 (필요시)
+pnpm add @nestjs/config
+
+# 테스팅
+pnpm add -D @nestjs/testing
+```
+
+## 🔧 개발 팁
+
+- **Hot Reload**: `pnpm start:dev`를 사용하면 파일 변경 시 자동 재시작
+- **포트 변경**: [main.ts](mdc:src/main.ts)에서 포트 설정 변경 가능
+- **Validation 설정**: [main.ts](mdc:src/main.ts)의 ValidationPipe 설정 확인
+
+## 🚨 문제 해결
+
+```bash
+# node_modules 재설치
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
+
+# 캐시 정리
+pnpm store prune
+
+# 포트 충돌 해결
+lsof -ti:3000 | xargs kill -9
+```

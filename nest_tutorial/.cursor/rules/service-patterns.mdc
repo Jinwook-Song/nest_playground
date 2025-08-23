@@ -1,0 +1,69 @@
+---
+globs: *.service.ts
+description: Service 클래스 작성 패턴과 베스트 프랙티스
+---
+
+# Service 패턴 가이드
+
+## 🏗️ 기본 구조
+
+[movies.service.ts](mdc:src/movies/movies.service.ts)를 참고하세요:
+
+```typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { CreateFeatureDto } from './dtos/create-feature.dto';
+import { UpdateFeatureDto } from './dtos/update-feature.dto';
+
+@Injectable()
+export class FeatureService {
+  private features: Feature[] = [];
+
+  getAll(): Feature[] {}
+  getOne(id: string): Feature {}
+  create(data: CreateFeatureDto): Feature {}
+  patch(id: string, data: UpdateFeatureDto): Feature {}
+  remove(id: string): boolean {}
+}
+```
+
+## 🎯 메서드 명명 규칙
+
+- **조회**: `getAll()`, `getOne(id)`, `findBy...()`
+- **생성**: `create(data)`
+- **수정**: `patch(id, data)` 또는 `update(id, data)`
+- **삭제**: `remove(id)` 또는 `delete(id)`
+- **검색**: `search(criteria)`
+
+## 🚨 에러 처리 패턴
+
+```typescript
+getOne(id: string): Feature {
+  const feature = this.features.find(item => item.id === Number(id));
+  if (!feature) {
+    throw new NotFoundException(`Feature with ID ${id} not found`);
+  }
+  return feature;
+}
+```
+
+## 🔄 업데이트 패턴 (PartialType 사용 시)
+
+```typescript
+patch(id: string, updateData: UpdateFeatureDto): Feature {
+  const feature = this.getOne(id); // 존재 확인
+  const updatedFeature = { ...feature, ...updateData };
+  const index = this.features.findIndex(item => item.id === Number(id));
+  this.features[index] = updatedFeature;
+  return updatedFeature;
+}
+```
+
+**중요**: PartialType을 사용하면 undefined 값들이 자동으로 처리되므로 별도 필터링이 불필요합니다.
+
+## 📋 베스트 프랙티스
+
+- 항상 `@Injectable()` 데코레이터 사용
+- 명확한 에러 메시지 제공
+- 단일 책임 원칙 준수
+- DTO 타입 사용으로 타입 안정성 확보
+- PartialType의 자동 undefined 처리 활용
