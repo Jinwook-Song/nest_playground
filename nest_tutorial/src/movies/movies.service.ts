@@ -1,5 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { Movie } from './entities/movie.entity';
+import { CreateMovieDto } from './dtos/create-movie.dto';
+import { UpdateMovieDto } from './dtos/update-movie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -19,7 +21,7 @@ export class MoviesService {
     return this.movies.filter((movie) => movie.year === Number(year));
   }
 
-  create(movieData: Omit<Movie, 'id'>): Movie {
+  create(movieData: CreateMovieDto): Movie {
     const newMovie: Movie = {
       id: Date.now(),
       title: movieData.title,
@@ -31,22 +33,16 @@ export class MoviesService {
   }
 
   remove(id: string): boolean {
-    const movieIndex = this.movies.findIndex(
-      (movie) => movie.id === Number(id),
-    );
-    if (movieIndex === -1) {
-      throw new NotFoundException(`Movie with ID ${id} not found`);
-    }
+    const movieIndex = this.movies.findIndex((movie) => movie.id === Number(id));
+    if (movieIndex === -1) throw new NotFoundException(`Movie with ID ${id} not found`);
     this.movies.splice(movieIndex, 1);
     return true;
   }
 
-  patch(id: string, updateData: Partial<Omit<Movie, 'id'>>): Movie {
+  patch(id: string, updateData: UpdateMovieDto): Movie {
     const movie = this.getOne(id);
     const updatedMovie = { ...movie, ...updateData };
-    const movieIndex = this.movies.findIndex(
-      (movie) => movie.id === Number(id),
-    );
+    const movieIndex = this.movies.findIndex((movie) => movie.id === Number(id));
     this.movies[movieIndex] = updatedMovie;
     return updatedMovie;
   }
