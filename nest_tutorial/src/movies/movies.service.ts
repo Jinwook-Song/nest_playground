@@ -11,14 +11,14 @@ export class MoviesService {
     return this.movies;
   }
 
-  getOne(id: string): Movie {
-    const movie = this.movies.find((movie) => movie.id === Number(id));
+  getOne(id: number): Movie {
+    const movie = this.movies.find((movie) => movie.id === id);
     if (!movie) throw new NotFoundException(`Movie with ID ${id} not found`);
     return movie;
   }
 
-  search(year: string): Movie[] {
-    return this.movies.filter((movie) => movie.year === Number(year));
+  search(year: number): Movie[] {
+    return this.movies.filter((movie) => movie.year === year);
   }
 
   create(movieData: CreateMovieDto): Movie {
@@ -32,17 +32,17 @@ export class MoviesService {
     return newMovie;
   }
 
-  remove(id: string): boolean {
-    const movieIndex = this.movies.findIndex((movie) => movie.id === Number(id));
+  remove(id: number): boolean {
+    const movieIndex = this.movies.findIndex((movie) => movie.id === id);
     if (movieIndex === -1) throw new NotFoundException(`Movie with ID ${id} not found`);
     this.movies.splice(movieIndex, 1);
     return true;
   }
 
-  patch(id: string, updateData: UpdateMovieDto): Movie {
+  patch(id: number, updateData: UpdateMovieDto): Movie {
     const movie = this.getOne(id);
     const updatedMovie = { ...movie, ...updateData };
-    const movieIndex = this.movies.findIndex((movie) => movie.id === Number(id));
+    const movieIndex = this.movies.findIndex((movie) => movie.id === id);
     this.movies[movieIndex] = updatedMovie;
     return updatedMovie;
   }

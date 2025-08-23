@@ -1,8 +1,5 @@
-import { Movie } from '../entities/movie.entity';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateMovieDto } from './create-movie.dto';
 
-// Movie 엔티티에서 id를 제외하고 모든 속성을 선택적으로 가진 DTO
-export class UpdateMovieDto implements Partial<Omit<Movie, 'id'>> {
-  readonly title?: string;
-  readonly year?: number;
-  readonly genres?: string[];
-}
+// CreateMovieDto의 모든 필드를 선택적으로 만든 DTO
+export class UpdateMovieDto extends PartialType(CreateMovieDto) {}
