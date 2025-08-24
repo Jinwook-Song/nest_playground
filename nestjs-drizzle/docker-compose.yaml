@@ -2,7 +2,9 @@ services:
   postgres:
     image: postgres
     ports:
-      - 5432:5432
+      - '5432:5432'
     environment:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: nestjs-drizzle
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
