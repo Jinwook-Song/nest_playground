@@ -1,0 +1,110 @@
+---
+description: GraphQL 개발 가이드라인
+globs: *.resolver.ts,*.dto.ts,*.input.ts,*.type.ts,*graphql*,*schema*
+---
+
+# GraphQL 가이드라인
+
+## 스키마 정의
+
+- Code First 접근 방식 사용 (`@nestjs/graphql`)
+- TypeScript 클래스로 스키마 정의
+- `@ObjectType()`, `@InputType()`, `@ArgsType()` 데코레이터 활용
+
+## 리졸버 작성
+
+- 리졸버 파일명: `*.resolver.ts`
+- `@Resolver()` 데코레이터 사용
+- 쿼리: `@Query()`, 뮤테이션: `@Mutation()`, 구독: `@Subscription()`
+
+```typescript
+@Resolver(() => User)
+export class UserResolver {
+  constructor(private userService: UserService) {}
+
+  @Query(() => [User])
+  async users(): Promise<User[]> {
+    return this.userService.findAll();
+  }
+
+  @Mutation(() => User)
+  async createUser(@Args('input') input: CreateUserInput): Promise<User> {
+    return this.userService.create(input);
+  }
+}
+```
+
+## 타입 정의
+
+- GraphQL 타입: `*.type.ts` 또는 엔티티 클래스에 직접 정의
+- `@Field()` 데코레이터로 필드 정의
+- 필드 타입 명시적 선언
+
+```typescript
+@ObjectType()
+export class User {
+  @Field(() => ID)
+  id: number;
+
+  @Field()
+  name: string;
+
+  @Field()
+  email: string;
+
+  @Field({ nullable: true })
+  bio?: string;
+}
+```
+
+## Input 타입
+
+- 입력 타입: `*.input.ts`
+- `@InputType()` 데코레이터 사용
+- 생성과 수정용으로 분리 권장
+
+```typescript
+@InputType()
+export class CreateUserInput {
+  @Field()
+  name: string;
+
+  @Field()
+  email: string;
+
+  @Field({ nullable: true })
+  bio?: string;
+}
+```
+
+## 인증 및 권한
+
+- Guard 사용: `@UseGuards(GqlAuthGuard)`
+- 컨텍스트에서 사용자 정보 추출: `@Context() context`
+- 데코레이터로 현재 사용자 접근: `@CurrentUser()`
+
+## 에러 처리
+
+- GraphQL 에러 사용: `throw new Error()` 또는 커스텀 예외
+- 적절한 에러 코드와 메시지 제공
+
+## DataLoader 패턴
+
+- N+1 문제 해결을 위해 DataLoader 사용
+- 관계 데이터 효율적 로딩
+
+## 구독 (Subscriptions)
+
+- 실시간 데이터 업데이트용
+- PubSub 패턴 사용
+- WebSocket 연결 관리
+
+## 스키마 생성
+
+- 자동 스키마 생성: `autoSchemaFile: true`
+- 스키마 파일 생성: `autoSchemaFile: 'schema.gql'`
+
+## 쿼리 복잡도 제한
+
+- 깊이 제한 및 복잡도 분석 적용
+- 악의적인 쿼리 방지

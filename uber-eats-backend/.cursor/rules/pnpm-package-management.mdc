@@ -1,0 +1,76 @@
+---
+description: pnpm 패키지 관리 가이드라인
+globs: package.json,pnpm-lock.yaml,.npmrc,pnpm-workspace.yaml
+---
+
+# pnpm 패키지 관리 가이드라인
+
+## 기본 명령어
+
+- 패키지 설치: `pnpm install` (또는 `pnpm i`)
+- 패키지 추가: `pnpm add <package-name>`
+- 개발 의존성 추가: `pnpm add -D <package-name>`
+- 패키지 제거: `pnpm remove <package-name>`
+- 스크립트 실행: `pnpm run <script-name>` (또는 `pnpm <script-name>`)
+
+## 프로젝트 스크립트
+
+현재 프로젝트에서 사용 가능한 스크립트들:
+
+- `pnpm start:dev` - 개발 서버 시작 (hot reload)
+- `pnpm start:debug` - 디버그 모드로 서버 시작
+- `pnpm build` - 프로덕션 빌드
+- `pnpm start:prod` - 프로덕션 서버 시작
+- `pnpm test` - 단위 테스트 실행
+- `pnpm test:watch` - 테스트 watch 모드
+- `pnpm test:e2e` - E2E 테스트 실행
+- `pnpm lint` - ESLint 실행
+- `pnpm format` - Prettier 포맷팅
+
+## 의존성 관리
+
+- 정확한 버전 지정 시 `pnpm add package@version`
+- 최신 버전 설치: `pnpm add package@latest`
+- 글로벌 설치: `pnpm add -g <package-name>`
+- 피어 의존성 설치: `pnpm add --save-peer <package-name>`
+
+## Lock 파일 관리
+
+- `pnpm-lock.yaml` 파일은 항상 커밋에 포함
+- 의존성 변경 시 자동으로 업데이트됨
+- 정확한 버전 재현을 위해 필수
+
+## Workspace 설정 (모노레포)
+
+- `pnpm-workspace.yaml` 파일로 워크스페이스 정의
+- 패키지 간 의존성: `pnpm add <workspace-package> --workspace`
+
+## 캐시 관리
+
+- 캐시 확인: `pnpm store status`
+- 캐시 정리: `pnpm store prune`
+- 완전한 캐시 삭제: `pnpm store path` 후 디렉토리 삭제
+
+## 성능 최적화
+
+- `--frozen-lockfile` 플래그로 CI에서 빠른 설치
+- `--prefer-offline` 로 오프라인 우선 설치
+- 선택적 의존성 제외: `--ignore-optional`
+
+## 보안
+
+- 취약점 검사: `pnpm audit`
+- 자동 수정: `pnpm audit --fix`
+- 의존성 라이선스 확인: `pnpm licenses list`
+
+## 설정 파일
+
+- `.npmrc` 파일로 pnpm 설정 커스터마이징
+- 레지스트리 설정, 인증 토큰 등 관리
+
+## 권장 사항
+
+- `npm` 대신 `pnpm` 명령어 사용
+- 불필요한 의존성 정기적으로 정리
+- 보안 업데이트 정기적으로 확인
+- `package.json`의 engines 필드로 Node.js 버전 명시

@@ -1,0 +1,63 @@
+---
+alwaysApply: true
+description: NestJS v11 개발 가이드라인
+---
+
+# NestJS v11 개발 가이드라인
+
+## 프로젝트 구조
+
+- 메인 진입점: [main.ts](mdc:src/main.ts)
+- 앱 모듈: [app.module.ts](mdc:src/app.module.ts)
+- 모든 소스 파일은 `src/` 디렉토리에 위치
+
+## 코딩 스타일
+
+- TypeScript를 사용하며 모든 파일은 `.ts` 확장자 사용
+- 데코레이터를 적극 활용 (`@Injectable()`, `@Controller()`, `@Module()` 등)
+- 의존성 주입(DI) 패턴을 따름
+- 클래스 기반 아키텍처 사용
+
+## 모듈 구조
+
+```typescript
+@Module({
+  imports: [], // 다른 모듈 import
+  controllers: [], // 컨트롤러 등록
+  providers: [], // 서비스, 가드, 인터셉터 등 등록
+  exports: [], // 다른 모듈에서 사용할 수 있도록 export
+})
+export class ExampleModule {}
+```
+
+## 컨트롤러 작성
+
+- REST API 엔드포인트 정의
+- `@Controller()` 데코레이터 사용
+- HTTP 메서드 데코레이터: `@Get()`, `@Post()`, `@Put()`, `@Delete()` 등
+- DTO를 사용한 요청/응답 타입 정의
+
+## 서비스 작성
+
+- 비즈니스 로직 구현
+- `@Injectable()` 데코레이터 사용
+- 단일 책임 원칙 준수
+
+## 환경 설정
+
+- 환경 변수는 `.env` 파일을 통해 관리
+- `@nestjs/config` 모듈 사용 권장
+
+## 테스트
+
+- 단위 테스트: `*.spec.ts` 파일
+- E2E 테스트: `test/` 디렉토리의 `*.e2e-spec.ts` 파일
+- Jest 테스트 프레임워크 사용
+
+## 스크립트 명령어
+
+- 개발 서버: `pnpm start:dev`
+- 빌드: `pnpm build`
+- 테스트: `pnpm test`
+- E2E 테스트: `pnpm test:e2e`
+- 린팅: `pnpm lint`
