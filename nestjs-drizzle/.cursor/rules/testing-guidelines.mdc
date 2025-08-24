@@ -1,0 +1,320 @@
+---
+globs: *.spec.ts,*.test.ts,*.e2e-spec.ts
+description: NestJS 테스트 작성 가이드라인
+---
+
+# NestJS 테스트 가이드라인
+
+## 테스트 파일 구조
+
+### 단위 테스트 (\*.spec.ts)
+
+```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+import { UsersService } from './users.service';
+
+describe('UsersService', () => {
+  let service: UsersService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [UsersService],
+    }).compile();
+
+    service = module.get<UsersService>(UsersService);
+  });
+
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
+
+  describe('findAll', () => {
+    it('should return an array of users', async () => {
+      // given
+      const expectedUsers = [{ id: 1, name: 'John' }];
+
+      // when
+      const result = await service.findAll();
+
+      // then
+      expect(result).toEqual(expectedUsers);
+    });
+  });
+});
+```
+
+### E2E 테스트 (\*.e2e-spec.ts)
+
+```typescript
+import { Test, TestingModule } from '@nestjs/testing';
+import { INestApplication } from '@nestjs/common';
+import * as request from 'supertest';
+import { AppModule } from '../src/app.module';
+
+describe('UsersController (e2e)', () => {
+  let app: INestApplication;
+
+  beforeEach(async () => {
+    const moduleFixture: TestingModule = await Test.createTestingModule({
+      imports: [AppModule],
+    }).compile();
+
+    app = moduleFixture.createNestApplication();
+    await app.init();
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it('/users (GET)', () => {
+    return request(app.getHttpServer())
+      .get('/users')
+      .expect(200)
+      .expect((res) => {
+        expect(Array.isArray(res.body)).toBe(true);
+      });
+  });
+});
+```
+
+## 모킹 전략
+
+### 서비스 모킹
+
+```typescript
+const mockUsersService = {
+  findAll: jest.fn(),
+  findOne: jest.fn(),
+  create: jest.fn(),
+  update: jest.fn(),
+  remove: jest.fn(),
+};
+
+beforeEach(async () => {
+  const module: TestingModule = await Test.createTestingModule({
+    controllers: [UsersController],
+    providers: [
+      {
+        provide: UsersService,
+        useValue: mockUsersService,
+      },
+    ],
+  }).compile();
+});
+```
+
+### 데이터베이스 모킹
+
+```typescript
+const mockDatabase = {
+  select: jest.fn().mockReturnThis(),
+  from: jest.fn().mockReturnThis(),
+  where: jest.fn().mockReturnThis(),
+  insert: jest.fn().mockReturnThis(),
+  values: jest.fn().mockReturnThis(),
+  returning: jest.fn(),
+};
+
+beforeEach(async () => {
+  const module: TestingModule = await Test.createTestingModule({
+    providers: [
+      UsersService,
+      {
+        provide: 'DATABASE_CONNECTION',
+        useValue: mockDatabase,
+      },
+    ],
+  }).compile();
+});
+```
+
+## 테스트 데이터 팩토리
+
+### 테스트 데이터 생성
+
+```typescript
+// test/factories/user.factory.ts
+export class UserFactory {
+  static create(overrides: Partial<User> = {}): User {
+    return {
+      id: 1,
+      email: 'test@example.com',
+      name: 'Test User',
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    };
+  }
+
+  static createMany(count: number, overrides: Partial<User> = {}): User[] {
+    return Array.from({ length: count }, (_, index) =>
+      this.create({ id: index + 1, ...overrides }),
+    );
+  }
+}
+```
+
+### 사용 예시
+
+```typescript
+describe('UsersService', () => {
+  it('should return users', async () => {
+    // given
+    const users = UserFactory.createMany(3);
+    mockDatabase.select.mockResolvedValue(users);
+
+    // when
+    const result = await service.findAll();
+
+    // then
+    expect(result).toEqual(users);
+  });
+});
+```
+
+## 데이터베이스 테스트
+
+### 테스트 데이터베이스 설정
+
+```typescript
+// test/database-test.module.ts
+@Module({
+  providers: [
+    {
+      provide: 'DATABASE_CONNECTION',
+      useFactory: () => {
+        const client = postgres(process.env.TEST_DATABASE_URL);
+        return drizzle(client, { schema });
+      },
+    },
+  ],
+  exports: ['DATABASE_CONNECTION'],
+})
+export class DatabaseTestModule {}
+```
+
+### 트랜잭션 롤백 테스트
+
+```typescript
+describe('UsersService (Integration)', () => {
+  let service: UsersService;
+  let db: NodePgDatabase<typeof schema>;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [DatabaseTestModule],
+      providers: [UsersService],
+    }).compile();
+
+    service = module.get<UsersService>(UsersService);
+    db = module.get('DATABASE_CONNECTION');
+  });
+
+  afterEach(async () => {
+    // 테스트 데이터 정리
+    await db.delete(users);
+  });
+
+  it('should create a user', async () => {
+    // given
+    const userData = { email: 'test@example.com', name: 'Test User' };
+
+    // when
+    const result = await service.create(userData);
+
+    // then
+    expect(result.email).toBe(userData.email);
+    expect(result.id).toBeDefined();
+  });
+});
+```
+
+## 컨트롤러 테스트
+
+### HTTP 요청 테스트
+
+```typescript
+describe('UsersController', () => {
+  let controller: UsersController;
+  let service: UsersService;
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [UsersController],
+      providers: [
+        {
+          provide: UsersService,
+          useValue: mockUsersService,
+        },
+      ],
+    }).compile();
+
+    controller = module.get<UsersController>(UsersController);
+    service = module.get<UsersService>(UsersService);
+  });
+
+  describe('POST /users', () => {
+    it('should create a user', async () => {
+      // given
+      const createUserDto = { email: 'test@example.com', name: 'Test User' };
+      const expectedUser = UserFactory.create(createUserDto);
+      mockUsersService.create.mockResolvedValue(expectedUser);
+
+      // when
+      const result = await controller.create(createUserDto);
+
+      // then
+      expect(service.create).toHaveBeenCalledWith(createUserDto);
+      expect(result).toEqual(expectedUser);
+    });
+  });
+});
+```
+
+## 테스트 스크립트 설정
+
+### package.json 테스트 스크립트
+
+```json
+{
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "test:unit": "jest --testPathIgnorePatterns=.*\\.e2e-spec\\.ts$",
+    "test:integration": "jest --testPathPattern=.*\\.integration\\.spec\\.ts$"
+  }
+}
+```
+
+### Jest 설정
+
+```javascript
+// jest.config.js
+module.exports = {
+  moduleFileExtensions: ['js', 'json', 'ts'],
+  rootDir: 'src',
+  testRegex: '.*\\.spec\\.ts$',
+  transform: {
+    '^.+\\.(t|j)s$': 'ts-jest',
+  },
+  collectCoverageFrom: ['**/*.(t|j)s', '!**/*.spec.ts', '!**/*.e2e-spec.ts'],
+  coverageDirectory: '../coverage',
+  testEnvironment: 'node',
+  setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
+};
+```
+
+## 베스트 프랙티스
+
+1. **AAA 패턴 사용**: Arrange, Act, Assert
+2. **테스트 격리**: 각 테스트는 독립적이어야 함
+3. **의미 있는 테스트명**: 테스트가 무엇을 검증하는지 명확히
+4. **모킹 최소화**: 실제 구현을 가능한 한 사용
+5. **커버리지 목표**: 80% 이상 유지
+6. **빠른 피드백**: 단위 테스트를 먼저 실행
+7. **데이터 정리**: 테스트 후 데이터 정리 필수

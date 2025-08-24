@@ -1,0 +1,53 @@
+---
+alwaysApply: true
+description: NestJS v11 + Drizzle + PostgreSQL 프로젝트 구조 가이드
+---
+
+# NestJS v11 + Drizzle + PostgreSQL 프로젝트 구조
+
+이 프로젝트는 다음 기술 스택을 사용합니다:
+
+- **NestJS v11**: Node.js 백엔드 프레임워크
+- **pnpm**: 패키지 매니저
+- **Drizzle ORM**: TypeScript ORM
+- **PostgreSQL**: 데이터베이스
+
+## 핵심 디렉토리 구조
+
+```
+src/
+├── app.module.ts          # 메인 애플리케이션 모듈
+├── main.ts               # 애플리케이션 진입점
+├── database/             # 데이터베이스 관련 파일
+│   ├── schema/          # Drizzle 스키마 정의
+│   ├── migrations/      # 데이터베이스 마이그레이션
+│   └── connection.ts    # 데이터베이스 연결 설정
+├── modules/             # 기능별 모듈
+│   ├── users/          # 사용자 모듈 예시
+│   │   ├── users.module.ts
+│   │   ├── users.controller.ts
+│   │   ├── users.service.ts
+│   │   └── dto/        # Data Transfer Objects
+│   └── auth/           # 인증 모듈 예시
+├── common/             # 공통 유틸리티
+│   ├── guards/         # NestJS 가드
+│   ├── interceptors/   # NestJS 인터셉터
+│   ├── decorators/     # 커스텀 데코레이터
+│   └── filters/        # 예외 필터
+└── config/             # 설정 파일
+```
+
+## 주요 파일들
+
+- [package.json](mdc:package.json): 프로젝트 의존성 및 스크립트
+- [docker-compose.yaml](mdc:docker-compose.yaml): PostgreSQL 컨테이너 설정
+- [src/main.ts](mdc:src/main.ts): NestJS 애플리케이션 부트스트랩
+- [src/app.module.ts](mdc:src/app.module.ts): 루트 모듈
+
+## 개발 워크플로우
+
+1. `pnpm install` - 의존성 설치
+2. `docker-compose up -d` - PostgreSQL 실행
+3. `pnpm start:dev` - 개발 서버 실행
+4. `pnpm db:push` - 스키마 변경사항 푸시 (Drizzle)
+5. `pnpm db:migrate` - 마이그레이션 실행

@@ -1,0 +1,206 @@
+---
+globs: docker-compose.yaml,*.env,drizzle.config.ts
+description: PostgreSQL 설정 및 연결 가이드
+---
+
+# PostgreSQL 설정 가이드
+
+## Docker Compose 설정
+
+현재 [docker-compose.yaml](mdc:docker-compose.yaml) 파일 기반:
+
+```yaml
+services:
+  postgres:
+    image: postgres:15
+    container_name: nestjs-drizzle-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_DB: nestjs-drizzle
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+
+  # PostgreSQL 관리 도구 (선택사항)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: nestjs-drizzle-pgadmin
+    ports:
+      - '8080:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+```
+
+## 환경변수 설정
+
+### .env 파일
+
+```env
+# 데이터베이스 설정
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/nestjs-drizzle"
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=postgres
+DB_PASSWORD=postgres
+DB_NAME=nestjs-drizzle
+
+# NestJS 설정
+NODE_ENV=development
+PORT=3000
+
+# JWT 설정 (인증 사용 시)
+JWT_SECRET=your-secret-key
+JWT_EXPIRATION=7d
+```
+
+### .env.example
+
+```env
+DATABASE_URL="postgresql://username:password@localhost:5432/database_name"
+DB_HOST=localhost
+DB_PORT=5432
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+DB_NAME=your_database
+
+NODE_ENV=development
+PORT=3000
+
+JWT_SECRET=your-jwt-secret
+JWT_EXPIRATION=7d
+```
+
+## 데이터베이스 연결 모듈
+
+### database.module.ts
+
+```typescript
+import { Module, Global } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
+
+@Global()
+@Module({
+  imports: [ConfigModule],
+  providers: [
+    {
+      provide: 'DATABASE_CONNECTION',
+      useFactory: async (configService: ConfigService) => {
+        const connectionString = configService.get<string>('DATABASE_URL');
+        const client = postgres(connectionString);
+        return drizzle(client, { schema });
+      },
+      inject: [ConfigService],
+    },
+  ],
+  exports: ['DATABASE_CONNECTION'],
+})
+export class DatabaseModule {}
+```
+
+## 데이터베이스 명령어
+
+### 기본 명령어
+
+```bash
+# PostgreSQL 컨테이너 시작
+docker-compose up -d postgres
+
+# PostgreSQL 컨테이너 중지
+docker-compose down
+
+# 데이터베이스 초기화 (데이터 삭제)
+docker-compose down -v
+docker-compose up -d postgres
+
+# PostgreSQL 콘솔 접속
+docker exec -it nestjs-drizzle-postgres psql -U postgres -d nestjs-drizzle
+```
+
+### 유용한 SQL 명령어
+
+```sql
+-- 데이터베이스 목록 확인
+\l
+
+-- 테이블 목록 확인
+\dt
+
+-- 테이블 구조 확인
+\d table_name
+
+-- 데이터베이스 연결 정보 확인
+\conninfo
+
+-- 종료
+\q
+```
+
+## 성능 최적화
+
+### 인덱스 설정
+
+```typescript
+import { index, uniqueIndex } from 'drizzle-orm/pg-core';
+
+export const users = pgTable(
+  'users',
+  {
+    id: serial('id').primaryKey(),
+    email: varchar('email', { length: 255 }).notNull(),
+    createdAt: timestamp('created_at').defaultNow(),
+  },
+  (table) => ({
+    emailIdx: uniqueIndex('email_idx').on(table.email),
+    createdAtIdx: index('created_at_idx').on(table.createdAt),
+  }),
+);
+```
+
+### 연결 풀 설정
+
+```typescript
+const client = postgres(connectionString, {
+  max: 20, // 최대 연결 수
+  idle_timeout: 20, // 유휴 타임아웃
+  connect_timeout: 10, // 연결 타임아웃
+});
+```
+
+## 백업 및 복원
+
+### 백업
+
+```bash
+# 전체 데이터베이스 백업
+docker exec nestjs-drizzle-postgres pg_dump -U postgres nestjs-drizzle > backup.sql
+
+# 특정 테이블만 백업
+docker exec nestjs-drizzle-postgres pg_dump -U postgres -t users nestjs-drizzle > users_backup.sql
+```
+
+### 복원
+
+```bash
+# 데이터베이스 복원
+docker exec -i nestjs-drizzle-postgres psql -U postgres nestjs-drizzle < backup.sql
+```
+
+## 모니터링
+
+- pgAdmin을 통한 GUI 관리
+- 쿼리 성능 모니터링
+- 연결 상태 확인
+- 로그 분석
