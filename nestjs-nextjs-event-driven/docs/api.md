@@ -2,12 +2,25 @@
 
 ## 📋 개요
 
-이 문서는 NestJS 백엔드에서 제공하는 REST API 엔드포인트와 SSE(Server-Sent Events) 스트림에 대한 상세 정보를 제공합니다.
+이 문서는 Redis 기반 분산 NestJS 백엔드에서 제공하는 REST API 엔드포인트와 SSE(Server-Sent Events) 스트림에 대한 상세 정보를 제공합니다.
+다중 서버 환경에서 Redis Pub/Sub을 통해 모든 서버가 동일한 이벤트를 공유합니다.
 
 ## 🚀 베이스 URL
 
-- **개발 환경**: `http://localhost:3000`
+### 단일 서버 환경
+
+- **백엔드 서버 1**: `http://localhost:3000`
+- **백엔드 서버 2**: `http://localhost:3002`
+- **백엔드 서버 N**: `http://localhost:300N`
+
+### 로드밸런서 환경
+
+- **Nginx 로드밸런서**: `http://localhost:8080`
 - **프로덕션**: 배포 환경에 따라 설정
+
+### 프론트엔드 (개발용)
+
+- **Next.js**: `http://localhost:3001`
 
 ## 📡 REST API 엔드포인트
 
@@ -50,10 +63,11 @@ Content-Type: application/json
 }
 ```
 
-**부수 효과**
+**부수 효과 (Redis Pub/Sub)**
 
 - 계정 생성 후 자동으로 `snapshots.generate` 이벤트가 발생
-- 연결된 클라이언트에게 `snapshots.generated` 이벤트가 실시간 전송
+- Redis를 통해 `snapshots.generated` 이벤트가 **모든 서버**로 전파
+- **모든 백엔드 서버**의 SSE 연결에서 실시간 이벤트 수신 가능
 
 **예제**
 
@@ -175,7 +189,9 @@ eventSource.close();
 
 ## 🧪 테스트 시나리오
 
-### 1. 계정 생성 → 실시간 알림 플로우
+### 1. 단일 서버 테스트 (기본)
+
+#### 계정 생성 → 실시간 알림 플로우
 
 1. **SSE 연결 설정**
 
@@ -199,18 +215,47 @@ curl -X POST http://localhost:3000/accounts \
 - API 응답으로 계정 정보 반환
 - SSE 스트림으로 `snapshots.generated` 이벤트 수신
 
-### 2. Keep-alive 테스트
+#### Keep-alive 테스트
 
-SSE 연결을 유지하고 25초마다 keep-alive 메시지 수신 확인:
+SSE 연결을 유지하고 15초마다 keep-alive 메시지 수신 확인:
 
 ```javascript
 const eventSource = new EventSource('http://localhost:3000/events/sse');
 eventSource.onmessage = (event) => {
   const data = JSON.parse(event.data);
-  if (data.comment === 'keep-alive') {
-    console.log('Keep-alive 신호 수신:', new Date());
+  if (data.type === 'ping') {
+    console.log('Keep-alive 신호 수신:', new Date(), `서버: ${data.serverId}`);
   }
 };
+```
+
+### 2. 다중 서버 환경 테스트 (Redis Pub/Sub)
+
+#### 교차 서버 이벤트 테스트
+
+**시나리오**: 서버1의 SSE 연결에서 서버2의 이벤트를 실시간으로 수신
+
+```bash
+# 터미널 1: 서버1 SSE 연결
+curl -N http://localhost:3000/events/sse
+
+# 터미널 2: 서버2에서 계정 생성
+curl -X POST http://localhost:3002/accounts \
+  -H "Content-Type: application/json" \
+  -d '{"name":"다중서버테스트","balance":999999}'
+
+# 결과: 터미널 1에서 이벤트 수신됨!
+# data: {"eventType":"snapshots.generated","serverId":"backend-2",...}
+```
+
+#### 로드밸런싱 환경 테스트
+
+```bash
+# Nginx 로드밸런서를 통한 테스트
+curl -N http://localhost:8080/events/sse &
+curl -X POST http://localhost:8080/accounts \
+  -H "Content-Type: application/json" \
+  -d '{"name":"로드밸런싱테스트","balance":777777}'
 ```
 
 ## 🔮 향후 확장 계획

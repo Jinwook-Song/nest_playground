@@ -9,11 +9,24 @@ export class AccountsService {
   private readonly accounts: any[] = [];
 
   create(account: any) {
-    this.accounts.push(account);
+    const newAccount = {
+      id: this.accounts.length + 1,
+      ...account,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.accounts.push(newAccount);
+
+    console.log(
+      `🏦 AccountsService: Created account for ${newAccount.name} with balance ${newAccount.balance}`,
+    );
+
     this.eventEmitter.emit(
       'snapshots.generate',
       new GenerateSnapshotsEvent('123'),
     );
+
+    return newAccount;
   }
 
   getAccounts() {
