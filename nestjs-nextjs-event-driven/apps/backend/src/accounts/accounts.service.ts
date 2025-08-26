@@ -1,18 +1,19 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
-import { SnapshotsService } from '../snapshots/snapshots.service';
+import { Injectable } from '@nestjs/common';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { GenerateSnapshotsEvent } from 'src/snapshots/generate-snapshots.event';
 
 @Injectable()
 export class AccountsService {
-  constructor(
-    @Inject(forwardRef(() => SnapshotsService))
-    private readonly snapshotsService: SnapshotsService,
-  ) {}
+  constructor(private readonly eventEmitter: EventEmitter2) {}
 
   private readonly accounts: any[] = [];
 
   create(account: any) {
     this.accounts.push(account);
-    this.snapshotsService.generateSnapshots();
+    this.eventEmitter.emit(
+      'snapshots.generate',
+      new GenerateSnapshotsEvent('123'),
+    );
   }
 
   getAccounts() {

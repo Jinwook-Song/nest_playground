@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AccountsModule } from './accounts/accounts.module';
 import { SnapshotsModule } from './snapshots/snapshots.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
-  imports: [AccountsModule, SnapshotsModule],
+  imports: [EventEmitterModule.forRoot(), AccountsModule, SnapshotsModule],
   controllers: [],
   providers: [],
 })
