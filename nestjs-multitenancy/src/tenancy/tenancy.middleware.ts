@@ -7,6 +7,6 @@ export class TenancyMiddleware implements NestMiddleware {
   use(req: any, res: any, next: () => void) {
     const tenantId = req.headers['tenant-id'];
     this.tenancyService.validateTenantId(tenantId);
-    next();
+    this.tenancyService.runWithTenant(tenantId, next);
   }
 }

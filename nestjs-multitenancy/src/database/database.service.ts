@@ -37,6 +37,12 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  getDatabase() {
+    return this.tenantConnections.get(
+      this.tenancyService.getTenantContext().tenantId,
+    )!.database;
+  }
+
   private async createDefaultPool() {
     this.defaultPool = new Pool({
       connectionString: this.configService.getOrThrow<string>('DATABASE_URL'),

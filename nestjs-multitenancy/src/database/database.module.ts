@@ -6,5 +6,6 @@ import { TenancyModule } from 'src/tenancy/tenancy.module';
 @Module({
   imports: [ConfigModule, TenancyModule],
   providers: [DatabaseService],
+  exports: [DatabaseService],
 })
 export class DatabaseModule {}
