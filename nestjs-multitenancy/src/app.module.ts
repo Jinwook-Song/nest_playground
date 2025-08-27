@@ -5,9 +5,10 @@ import { TenancyModule } from './tenancy/tenancy.module';
 import { TenancyMiddleware } from './tenancy/tenancy.middleware';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
-  imports: [TenancyModule, ConfigModule.forRoot(), DatabaseModule],
+  imports: [TenancyModule, ConfigModule.forRoot(), DatabaseModule, UsersModule],
   controllers: [AppController],
   providers: [AppService],
 })
