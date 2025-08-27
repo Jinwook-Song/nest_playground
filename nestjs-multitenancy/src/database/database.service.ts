@@ -9,6 +9,7 @@ import { execSync } from 'child_process';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { TenancyService } from 'src/tenancy/tenancy.service';
+import { Schema, schema } from './schema';
 
 @Injectable()
 export class DatabaseService implements OnModuleInit, OnModuleDestroy {
@@ -16,7 +17,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(DatabaseService.name);
   private readonly tenantConnections: Map<
     string,
-    { pool: Pool; database: NodePgDatabase<any> }
+    { pool: Pool; database: NodePgDatabase<Schema> }
   > = new Map();
 
   constructor(
@@ -57,7 +58,7 @@ export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   ) {
     await this.createDatabaseIfNotExists(tenantId);
     const pool = new Pool({ connectionString });
-    const database = drizzle(pool, { schema: {} });
+    const database = drizzle(pool, { schema: schema });
     this.tenantConnections.set(tenantId, { pool, database });
   }
 
