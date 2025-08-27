@@ -19,4 +19,8 @@ export class TenancyService implements OnModuleInit {
       throw new BadRequestException(`Invalid tenant ID: ${tenantId}`);
     }
   }
+
+  getTenants(): Readonly<Tenants> {
+    return { ...this.tenants };
+  }
 }
