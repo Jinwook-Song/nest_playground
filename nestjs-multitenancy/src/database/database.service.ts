@@ -1,11 +1,11 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { drizzle, NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import { TenancyService } from 'src/tenancy/tenancy.service';
 
 @Injectable()
-export class DatabaseService implements OnModuleInit {
+export class DatabaseService implements OnModuleInit, OnModuleDestroy {
   private defaultPool: Pool;
   private readonly tenantConnections: Map<
     string,
@@ -20,6 +20,13 @@ export class DatabaseService implements OnModuleInit {
   async onModuleInit() {
     this.createDefaultPool();
     await this.createTenantConnections();
+  }
+
+  async onModuleDestroy() {
+    await this.defaultPool.end();
+    for (const { pool } of this.tenantConnections.values()) {
+      await pool.end();
+    }
   }
 
   private async createDefaultPool() {
