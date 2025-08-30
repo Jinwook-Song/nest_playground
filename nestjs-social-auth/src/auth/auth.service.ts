@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
-import { compare } from 'bcryptjs';
+import { compare, hash } from 'bcryptjs';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/users/schema/user.schema';
@@ -26,6 +26,16 @@ export class AuthService {
         ),
     );
 
+    const expiresRefreshToken = new Date();
+    expiresRefreshToken.setMilliseconds(
+      expiresRefreshToken.getTime() +
+        parseInt(
+          this.configService.getOrThrow<string>(
+            'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+          ),
+        ),
+    );
+
     const tokenPayload: TokenPayload = {
       userId: user._id.toHexString(),
     };
@@ -37,10 +47,29 @@ export class AuthService {
       )}ms`,
     });
 
+    const refreshToken = this.jwtService.sign(tokenPayload, {
+      secret: this.configService.getOrThrow<string>('JWT_REFRESH_TOKEN_SECRET'),
+      expiresIn: `${this.configService.getOrThrow<string>(
+        'JWT_REFRESH_TOKEN_EXPIRATION_MS',
+      )}ms`,
+    });
+
+    this.usersService.updateUser(
+      { _id: user._id },
+      {
+        $set: { refreshToken: await hash(refreshToken, 10) },
+      },
+    );
+
     response.cookie('Authentication', accessToken, {
       httpOnly: true,
       secure: this.configService.get<string>('NODE_ENV') === 'production',
       expires: expiresAccessToken,
+    });
+    response.cookie('Refresh', refreshToken, {
+      httpOnly: true,
+      secure: this.configService.get<string>('NODE_ENV') === 'production',
+      expires: expiresRefreshToken,
     });
 
     return user;
@@ -56,6 +85,22 @@ export class AuthService {
       return user;
     } catch (error) {
       throw new UnauthorizedException('Invalid credentials');
+    }
+  }
+
+  async verifyUserRefreshToken(refreshToken: string, userId: string) {
+    try {
+      const user = await this.usersService.getUser({ _id: userId });
+      if (!user.refreshToken) {
+        throw new UnauthorizedException('Refresh token is invalid');
+      }
+      const authenticated = await compare(refreshToken, user.refreshToken);
+      if (!authenticated) {
+        throw new UnauthorizedException('Refresh token is invalid');
+      }
+      return user;
+    } catch (error) {
+      throw new UnauthorizedException('Refresh token is invalid');
     }
   }
 }
