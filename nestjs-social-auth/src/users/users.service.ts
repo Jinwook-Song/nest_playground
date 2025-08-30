@@ -25,4 +25,9 @@ export class UsersService {
     }
     return user.toObject();
   }
+
+  async getUsers() {
+    const users = await this.userModel.find();
+    return users.map((user) => user.toObject());
+  }
 }
