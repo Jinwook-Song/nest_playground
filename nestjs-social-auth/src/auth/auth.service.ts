@@ -15,7 +15,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(user: User, response: Response) {
+  async login(user: User, response: Response, redirent = false) {
     const expiresAccessToken = new Date();
     expiresAccessToken.setMilliseconds(
       expiresAccessToken.getTime() +
@@ -71,6 +71,12 @@ export class AuthService {
       secure: this.configService.get<string>('NODE_ENV') === 'production',
       expires: expiresRefreshToken,
     });
+
+    if (redirent) {
+      response.redirect(
+        this.configService.getOrThrow<string>('AUTH_UI_REDIRECT'),
+      );
+    }
 
     return user;
   }

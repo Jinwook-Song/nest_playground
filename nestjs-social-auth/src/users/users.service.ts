@@ -36,9 +36,10 @@ export class UsersService {
   }
 
   async getOrCreateUser(data: CreateUserRequest) {
-    const user = await this.getUser({ email: data.email });
-    if (user) return user;
-
+    const user = await this.userModel.findOne({ email: data.email });
+    if (user) {
+      return user;
+    }
     return this.create(data);
   }
 }

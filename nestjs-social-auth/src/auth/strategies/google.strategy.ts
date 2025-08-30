@@ -18,11 +18,8 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
     });
   }
 
-  async validate(
-    _accessToken: string,
-    _refreshToken: string,
-    profile: Profile,
-  ) {
+  async validate(_accessToken: string, _refreshToken: string, profile: any) {
+    console.log('[profile]', profile.emails[0].value);
     return this.usersService.getOrCreateUser({
       email: profile.emails?.[0]?.value ?? '',
       password: '',
