@@ -7,10 +7,7 @@ export default async function Home() {
     },
   });
 
-  console.log((await cookies()).toString());
   const users = await userResponse.json();
-
-  console.log('[users]', users);
 
   return (
     <div className='h-screen flex items-center justify-center flex-col gap-5 overflow-hidden'>

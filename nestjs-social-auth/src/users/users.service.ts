@@ -12,7 +12,7 @@ export class UsersService {
   ) {}
 
   async create(user: CreateUserRequest) {
-    await new this.userModel({
+    return await new this.userModel({
       ...user,
       password: await hash(user.password, 10),
     }).save();
@@ -40,6 +40,6 @@ export class UsersService {
     if (user) {
       return user;
     }
-    return this.create(data);
+    return await this.create(data);
   }
 }
