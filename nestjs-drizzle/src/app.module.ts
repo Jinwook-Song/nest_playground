@@ -6,7 +6,13 @@ import { PostsModule } from './posts/posts.module';
 import { CategoriesModule } from './categories/categories.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), DatabaseModule, UsersModule, PostsModule, CategoriesModule],
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    DatabaseModule,
+    UsersModule,
+    PostsModule,
+    CategoriesModule,
+  ],
   controllers: [],
   providers: [],
 })
