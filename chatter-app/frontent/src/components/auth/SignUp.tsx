@@ -2,9 +2,10 @@ import { Link } from 'react-router-dom';
 import { Link as MuiLink } from '@mui/material';
 import Auth from './Auth';
 import { useCreateUser } from '../../hooks/useCreateUser';
+import { extractErrorMessage } from '../../../utils/errors';
 
 const SignUp = () => {
-  const [createUser] = useCreateUser();
+  const [createUser, { error }] = useCreateUser();
 
   const handleSubmit = async (credentials: {
     email: string;
@@ -21,7 +22,11 @@ const SignUp = () => {
   };
 
   return (
-    <Auth submitLabel='Sign Up' onSubmit={handleSubmit}>
+    <Auth
+      submitLabel='Sign Up'
+      onSubmit={handleSubmit}
+      error={error === undefined ? undefined : extractErrorMessage(error)}
+    >
       <Link to='/login' style={{ textAlign: 'center' }}>
         <MuiLink component={Link} to='/login'>
           Login &rarr;

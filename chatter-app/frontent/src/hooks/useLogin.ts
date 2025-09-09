@@ -8,23 +8,31 @@ interface LoginRequest {
 }
 
 const useLogin = () => {
-  const [error, setError] = useState<boolean>();
+  const [error, setError] = useState('');
 
   const login = async (loginRequest: LoginRequest) => {
-    const res = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(loginRequest),
-    });
+    try {
+      const res = await fetch(`${API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(loginRequest),
+      });
 
-    if (!res.ok) {
-      setError(true);
-      return;
+      if (!res.ok) {
+        if (res.status === 401) {
+          setError('Invalid credentials');
+        } else {
+          setError('Unknown error occurred');
+        }
+        return;
+      }
+      setError('');
+      await client.refetchQueries({ include: 'active' });
+    } catch (error) {
+      setError('Unknown error occurred');
     }
-    setError(false);
-    await client.refetchQueries({ include: 'active' });
   };
 
   return { login, error };

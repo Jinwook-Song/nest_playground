@@ -7,7 +7,7 @@ const Login = () => {
   const { login, error } = useLogin();
 
   return (
-    <Auth submitLabel='Login' onSubmit={login}>
+    <Auth submitLabel='Login' onSubmit={login} error={error}>
       <Link to='/signup' style={{ textAlign: 'center' }}>
         <MuiLink component={Link} to='/signup'>
           Sign Up &rarr;
