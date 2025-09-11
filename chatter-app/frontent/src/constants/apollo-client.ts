@@ -1,8 +1,47 @@
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client';
+import {
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+  CombinedGraphQLErrors,
+  ServerError,
+} from '@apollo/client';
 import { API_URL } from './urls';
+import { ErrorLink } from '@apollo/client/link/error';
+import PUBLIC_ROUTES from './public-routes';
 
 // GraphQL 엔드포인트 URL 설정
 const GRAPHQL_URI = `${API_URL}/graphql`;
+
+// PUBLIC_ROUTES가 아니고 401 에러가 발생하면, /login 으로 리다이렉트
+const publicLink = new ErrorLink(({ error }) => {
+  // GraphQL 에러에서 UNAUTHENTICATED 확인
+  if (CombinedGraphQLErrors.is(error)) {
+    const hasUnauthorizedError = error.errors.some(
+      (err) => err.extensions?.code === 'UNAUTHENTICATED',
+    );
+
+    if (hasUnauthorizedError) {
+      const currentPath = window.location.pathname;
+
+      // 현재 경로가 PUBLIC_ROUTES에 포함되지 않은 경우에만 리다이렉트
+      if (!PUBLIC_ROUTES.includes(currentPath)) {
+        console.log('UNAUTHENTICATED 에러 발생, 로그인 페이지로 리다이렉트');
+        window.location.href = '/login';
+      }
+    }
+  }
+
+  // Server 에러에서 401 상태 코드 확인
+  if (ServerError.is(error) && error.statusCode === 401) {
+    const currentPath = window.location.pathname;
+
+    // 현재 경로가 PUBLIC_ROUTES에 포함되지 않은 경우에만 리다이렉트
+    if (!PUBLIC_ROUTES.includes(currentPath)) {
+      console.log('401 상태 코드 에러 발생, 로그인 페이지로 리다이렉트');
+      window.location.href = '/login';
+    }
+  }
+});
 
 // HttpLink로 네트워크 연결 설정
 const httpLink = new HttpLink({
@@ -23,7 +62,7 @@ const cache = new InMemoryCache({
 
 // Apollo Client 인스턴스 생성 (최신 문법)
 const client = new ApolloClient({
-  link: httpLink,
+  link: publicLink.concat(httpLink),
   cache,
   // 개발 환경에서 DevTools 연결
   devtools: {
