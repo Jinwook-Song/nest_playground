@@ -3,22 +3,21 @@ import { Link as MuiLink } from '@mui/material';
 import Auth from './Auth';
 import { useCreateUser } from '../../hooks/useCreateUser';
 import { extractErrorMessage } from '../../../utils/errors';
+import { useLogin } from '../../hooks/useLogin';
 
 const SignUp = () => {
   const [createUser, { error }] = useCreateUser();
+  const { login } = useLogin();
 
-  const handleSubmit = async (credentials: {
+  const handleSubmit = async ({
+    email,
+    password,
+  }: {
     email: string;
     password: string;
   }) => {
-    await createUser({
-      variables: {
-        createUserInput: {
-          email: credentials.email,
-          password: credentials.password,
-        },
-      },
-    });
+    await createUser({ variables: { createUserInput: { email, password } } });
+    await login({ email, password });
   };
 
   return (
