@@ -34,4 +34,10 @@ export class AuthService {
       expires,
     });
   }
+
+  async logout(res: Response) {
+    res.clearCookie('Authentication', {
+      httpOnly: true,
+    });
+  }
 }

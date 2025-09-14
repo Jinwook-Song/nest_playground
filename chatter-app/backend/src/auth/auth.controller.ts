@@ -4,6 +4,7 @@ import { CurrentUser } from './current-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -16,5 +17,11 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.authService.login(user, res);
+  }
+
+  @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  async logout(@Res({ passthrough: true }) res: Response) {
+    return this.authService.logout(res);
   }
 }
