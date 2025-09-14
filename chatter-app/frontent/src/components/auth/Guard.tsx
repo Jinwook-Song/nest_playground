@@ -2,13 +2,16 @@ import { useEffect } from 'react';
 import PUBLIC_ROUTES from '../../constants/public-routes';
 import { useGetMe } from '../../hooks/useGetMe';
 import { authenticatedVar } from '../../constants/authenticated';
+import { CombinedGraphQLErrors } from '@apollo/client/errors';
+import { snackVar } from '../../constants/snack';
+import { UNKNOWN_ERROR_SNACK_MESSAGE } from '../../constants/errors';
 
 interface GuardProps {
   children: React.ReactNode;
 }
 
 const Guard = ({ children }: GuardProps) => {
-  const { data: user } = useGetMe();
+  const { data: user, error } = useGetMe();
 
   useEffect(() => {
     if (user) {
@@ -16,7 +19,11 @@ const Guard = ({ children }: GuardProps) => {
     }
   }, [user]);
 
-  console.log('user', user);
+  useEffect(() => {
+    if (error && !CombinedGraphQLErrors.is(error)) {
+      snackVar(UNKNOWN_ERROR_SNACK_MESSAGE);
+    }
+  }, [error]);
 
   return (
     <>

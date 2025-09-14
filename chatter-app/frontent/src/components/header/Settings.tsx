@@ -9,6 +9,8 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useLogout } from '../../hooks/useLogout';
+import { snackVar } from '../../constants/snack';
+import { UNKNOWN_ERROR_SNACK_MESSAGE } from '../../constants/errors';
 
 const Settings = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
@@ -48,8 +50,12 @@ const Settings = () => {
         <MenuItem
           key={'logout'}
           onClick={async () => {
-            await logout();
-            handleCloseUserMenu();
+            try {
+              await logout();
+              handleCloseUserMenu();
+            } catch (error) {
+              snackVar(UNKNOWN_ERROR_SNACK_MESSAGE);
+            }
           }}
         >
           <Typography sx={{ textAlign: 'center' }}>Logout</Typography>
