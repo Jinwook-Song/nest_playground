@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Link as MuiLink } from '@mui/material';
 import Auth from './Auth';
 import { useCreateUser } from '../../hooks/useCreateUser';
-import { extractErrorMessage } from '../../../utils/errors';
+import { extractErrorMessage } from '../../utils/errors';
 import { useLogin } from '../../hooks/useLogin';
 
 const SignUp = () => {

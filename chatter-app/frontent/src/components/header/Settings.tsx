@@ -8,13 +8,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
+import { useLogout } from '../../hooks/useLogout';
 
-interface SettingsProps {
-  settings: string[];
-}
-
-const Settings = ({ settings }: SettingsProps) => {
+const Settings = () => {
   const [anchorElUser, setAnchorElUser] = useState<null | HTMLElement>(null);
+  const { logout } = useLogout();
 
   const handleOpenUserMenu = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElUser(event.currentTarget);
@@ -47,11 +45,15 @@ const Settings = ({ settings }: SettingsProps) => {
         open={Boolean(anchorElUser)}
         onClose={handleCloseUserMenu}
       >
-        {settings.map((setting) => (
-          <MenuItem key={setting} onClick={handleCloseUserMenu}>
-            <Typography sx={{ textAlign: 'center' }}>{setting}</Typography>
-          </MenuItem>
-        ))}
+        <MenuItem
+          key={'logout'}
+          onClick={async () => {
+            await logout();
+            handleCloseUserMenu();
+          }}
+        >
+          <Typography sx={{ textAlign: 'center' }}>Logout</Typography>
+        </MenuItem>
       </Menu>
     </Box>
   );

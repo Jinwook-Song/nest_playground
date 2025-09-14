@@ -8,7 +8,6 @@ import Navigation from './Navigation';
 import Settings from './Settings';
 
 const pages: string[] = [];
-const settings: string[] = ['Logout'];
 
 const Header = () => {
   return (
@@ -19,7 +18,7 @@ const Header = () => {
           <MobileNavigation pages={pages} />
           <MobileBranding />
           <Navigation pages={pages} />
-          <Settings settings={settings} />
+          <Settings />
         </Toolbar>
       </Container>
     </AppBar>

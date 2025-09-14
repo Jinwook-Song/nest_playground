@@ -8,6 +8,7 @@ import {
 import { API_URL } from './urls';
 import { ErrorLink } from '@apollo/client/link/error';
 import PUBLIC_ROUTES from './public-routes';
+import { onLogout } from '../utils/logout';
 
 // GraphQL 엔드포인트 URL 설정
 const GRAPHQL_URI = `${API_URL}/graphql`;
@@ -26,7 +27,7 @@ const publicLink = new ErrorLink(({ error }) => {
       // 현재 경로가 PUBLIC_ROUTES에 포함되지 않은 경우에만 리다이렉트
       if (!PUBLIC_ROUTES.includes(currentPath)) {
         console.log('UNAUTHENTICATED 에러 발생, 로그인 페이지로 리다이렉트');
-        window.location.href = '/login';
+        onLogout();
       }
     }
   }
