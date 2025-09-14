@@ -5,6 +5,7 @@ import { authenticatedVar } from '../../constants/authenticated';
 import { CombinedGraphQLErrors } from '@apollo/client/errors';
 import { snackVar } from '../../constants/snack';
 import { UNKNOWN_ERROR_SNACK_MESSAGE } from '../../constants/errors';
+import { usePath } from '../../hooks/usePath';
 
 interface GuardProps {
   children: React.ReactNode;
@@ -12,6 +13,7 @@ interface GuardProps {
 
 const Guard = ({ children }: GuardProps) => {
   const { data: user, error } = useGetMe();
+  usePath();
 
   useEffect(() => {
     if (user) {
