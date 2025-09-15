@@ -4,11 +4,7 @@ import { graphql } from '../gql';
 const createChatDocument = graphql(/* GraphQL */ `
   mutation CreateChat($createChatInput: CreateChatInput!) {
     createChat(createChatInput: $createChatInput) {
-      _id
-      userId
-      isPrivate
-      name
-      userIds
+      ...ChatFragment
     }
   }
 `);

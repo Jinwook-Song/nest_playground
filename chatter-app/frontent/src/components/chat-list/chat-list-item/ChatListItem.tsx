@@ -6,8 +6,13 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import type { ChatsQuery } from '../../../gql/graphql';
 
-const ChatListItem = () => {
+interface ChatListItemProps {
+  chat: ChatsQuery['chats'][number];
+}
+
+const ChatListItem = ({ chat }: ChatListItemProps) => {
   return (
     <>
       <ListItem alignItems='flex-start'>
@@ -15,7 +20,7 @@ const ChatListItem = () => {
           <Avatar alt='Remy Sharp' src='/static/images/avatar/1.jpg' />
         </ListItemAvatar>
         <ListItemText
-          primary='Brunch this weekend?'
+          primary={chat.name}
           secondary={
             <>
               <Typography
