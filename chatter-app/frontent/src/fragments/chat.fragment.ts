@@ -1,6 +1,6 @@
 import { graphql } from '../gql';
 
-graphql(/* GraphQL */ `
+export const chatFragment = graphql(/* GraphQL */ `
   fragment ChatFragment on Chat {
     _id
     name
