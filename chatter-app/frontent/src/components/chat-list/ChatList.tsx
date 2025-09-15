@@ -23,7 +23,7 @@ const ChatList = () => {
             width: '100%',
             maxWidth: 360,
             bgcolor: 'background.paper',
-            maxHeight: '80vh',
+            height: 'calc(100vh - 128px)',
             overflow: 'auto',
           }}
         >

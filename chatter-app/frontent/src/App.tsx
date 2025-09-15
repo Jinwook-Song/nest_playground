@@ -22,19 +22,20 @@ const darkTheme = createTheme({
 });
 
 function App() {
-  const { isHome } = usePath();
+  const { showChatList } = usePath();
+
   return (
     <ApolloProvider client={client}>
       <ThemeProvider theme={darkTheme}>
         <CssBaseline />
         <Header />
         <Guard>
-          {isHome ? (
+          {showChatList ? (
             <Grid container>
               <Grid columns={3}>
                 <ChatList />
               </Grid>
-              <Grid columns={9}>
+              <Grid columns={9} flexGrow={1}>
                 <Routes />
               </Grid>
             </Grid>
@@ -50,7 +51,7 @@ function App() {
 
 const Routes = () => {
   return (
-    <Container>
+    <Container sx={{ height: '100%' }}>
       <RouterProvider router={router} />
     </Container>
   );

@@ -10,7 +10,11 @@ const usePath = () => {
     });
   });
 
-  return { path, isHome: path === '/' };
+  return {
+    path,
+    isHome: path === '/',
+    showChatList: path === '/' || path.includes('chats'),
+  };
 };
 
 export { usePath };
