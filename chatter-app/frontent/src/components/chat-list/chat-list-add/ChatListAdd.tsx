@@ -15,6 +15,7 @@ import {
 import { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { useCreateChat } from '../../../hooks/useCreateChat';
+import { UNKNOWN_ERROR_MESSAGE } from '../../../constants/errors';
 
 interface ChatListAddProps {
   open: boolean;
@@ -23,12 +24,20 @@ interface ChatListAddProps {
 
 const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
   const [isPrivateChat, setIsPrivateChat] = useState(false);
+  const [error, setError] = useState<string | undefined>(undefined);
   const [name, setName] = useState<string | undefined>(undefined);
 
   const [createChat] = useCreateChat();
 
+  const handleClose = () => {
+    onClose();
+    setError(undefined);
+    setName(undefined);
+    setIsPrivateChat(false);
+  };
+
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
           position: 'absolute' as 'absolute',
@@ -69,12 +78,19 @@ const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
             <TextField
               label='Name'
               value={name}
+              error={!!error}
+              helperText={error}
               onChange={(e) => setName(e.target.value)}
             />
           )}
           <Button
             variant='outlined'
             onClick={() => {
+              if (!isPrivateChat && !name?.length) {
+                setError('Name is required');
+                return;
+              }
+              setError(undefined);
               createChat({
                 variables: {
                   createChatInput: {
@@ -82,7 +98,11 @@ const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
                     name,
                   },
                 },
-              });
+              })
+                .then(handleClose)
+                .catch((_error) => {
+                  setError(UNKNOWN_ERROR_MESSAGE);
+                });
             }}
           >
             Save
