@@ -3,10 +3,16 @@ import { useGetChat } from '../../hooks/useGetChat';
 import { Divider, IconButton, Paper, Stack } from '@mui/material';
 import InputBase from '@mui/material/InputBase';
 import SendIcon from '@mui/icons-material/Send';
+import { useCreateMessage } from '../../hooks/useCreateMessage';
+import { useState } from 'react';
 
 const Chat = () => {
   const params = useParams();
-  const { data } = useGetChat({ _id: params._id! });
+  const chatId = params._id!;
+
+  const [message, setMessage] = useState('');
+  const { data } = useGetChat({ _id: chatId });
+  const [createMessage] = useCreateMessage();
 
   return (
     <Stack sx={{ height: '100%', justifyContent: 'space-between' }}>
@@ -24,9 +30,21 @@ const Chat = () => {
         <InputBase
           sx={{ ml: 1, flex: 1, width: '100%' }}
           placeholder='Message'
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
         />
         <Divider sx={{ height: 28, m: 0.5 }} orientation='vertical' />
-        <IconButton color='primary' sx={{ p: '10px' }}>
+        <IconButton
+          color='primary'
+          sx={{ p: '10px' }}
+          onClick={() =>
+            createMessage({
+              variables: {
+                createMessageInput: { content: message, chatId },
+              },
+            })
+          }
+        >
           <SendIcon />
         </IconButton>
       </Paper>
