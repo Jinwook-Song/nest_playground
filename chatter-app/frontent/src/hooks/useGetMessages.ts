@@ -2,7 +2,7 @@ import { useQuery } from '@apollo/client/react';
 import { graphql } from '../gql';
 import type { MessagesQueryVariables } from '../gql/graphql';
 
-const getMessagesDocument = graphql(/* GraphQL */ `
+export const getMessagesDocument = graphql(/* GraphQL */ `
   query Messages($chatId: String!) {
     messages(chatId: $chatId) {
       ...MessageFragment
