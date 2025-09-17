@@ -46,6 +46,7 @@ export type CreateUserInput = {
 export type Message = {
   __typename?: 'Message';
   _id: Scalars['ID']['output'];
+  chatId: Scalars['String']['output'];
   content: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   userId: Scalars['String']['output'];
@@ -115,6 +116,16 @@ export type QueryMessagesArgs = {
 
 export type QueryUserArgs = {
   _id: Scalars['String']['input'];
+};
+
+export type Subscription = {
+  __typename?: 'Subscription';
+  messageCreated: Message;
+};
+
+
+export type SubscriptionMessageCreatedArgs = {
+  chatId: Scalars['String']['input'];
 };
 
 export type UpdateChatInput = {

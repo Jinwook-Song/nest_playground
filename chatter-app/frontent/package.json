@@ -19,6 +19,7 @@
     "@mui/icons-material": "^7.3.1",
     "@mui/material": "^7.3.1",
     "graphql": "^16.11.0",
+    "graphql-ws": "^6.0.6",
     "localforage": "^1.10.0",
     "match-sorter": "^8.1.0",
     "react": "^19.1.1",
