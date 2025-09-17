@@ -16,6 +16,7 @@ import { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import { useCreateChat } from '../../../hooks/useCreateChat';
 import { UNKNOWN_ERROR_MESSAGE } from '../../../constants/errors';
+import router from '../../Routes';
 
 interface ChatListAddProps {
   open: boolean;
@@ -29,15 +30,19 @@ const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
 
   const [createChat] = useCreateChat();
 
-  const handleClose = () => {
+  const handleClose = (chatId?: string) => {
     onClose();
     setError(undefined);
     setName(undefined);
     setIsPrivateChat(false);
+
+    if (chatId) {
+      router.navigate(`/chats/${chatId}`);
+    }
   };
 
   return (
-    <Modal open={open} onClose={handleClose}>
+    <Modal open={open} onClose={() => handleClose}>
       <Box
         sx={{
           position: 'absolute' as 'absolute',
@@ -99,7 +104,7 @@ const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
                   },
                 },
               })
-                .then(handleClose)
+                .then(({ data }) => handleClose(data?.createChat._id))
                 .catch((_error) => {
                   setError(UNKNOWN_ERROR_MESSAGE);
                 });

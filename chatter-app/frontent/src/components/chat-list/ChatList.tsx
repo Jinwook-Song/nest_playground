@@ -5,10 +5,12 @@ import ChatListHeader from './chat-list-header/ChatListHeader';
 import { useState } from 'react';
 import ChatListAdd from './chat-list-add/ChatListAdd';
 import { useGetChats } from '../../hooks/useGetChats';
+import { usePath } from '../../hooks/usePath';
 
 const ChatList = () => {
   const [chatListAddVisible, setChatListAddVisible] = useState(false);
   const { data } = useGetChats();
+  const { path } = usePath();
   return (
     <>
       <ChatListAdd
@@ -27,9 +29,15 @@ const ChatList = () => {
             overflow: 'auto',
           }}
         >
-          {data?.chats.map((chat) => (
-            <ChatListItem key={chat._id} chat={chat} />
-          ))}
+          {data?.chats
+            .map((chat) => (
+              <ChatListItem
+                key={chat._id}
+                chat={chat}
+                selected={path.includes(chat._id)}
+              />
+            ))
+            .reverse()}
         </List>
       </Stack>
     </>
