@@ -41,9 +41,28 @@ const Chat = () => {
   }, [chatId]);
 
   return (
-    <Stack sx={{ height: '100%', justifyContent: 'space-between' }}>
-      <h1>{data?.chat.name}</h1>
-      <Box sx={{ maxHeight: '70vh', overflow: 'auto' }}>
+    <Box
+      sx={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        position: 'relative',
+      }}
+    >
+      {/* 헤더 영역 */}
+      <Box sx={{ flexShrink: 0, mb: 2 }}>
+        <h1>{data?.chat.name}</h1>
+      </Box>
+
+      {/* 메시지 영역 - 입력창 높이만큼 하단 여백 확보 */}
+      <Box
+        sx={{
+          flex: 1,
+          overflow: 'auto',
+          paddingBottom: '80px', // 입력창 공간 확보
+          minHeight: 0, // flex item이 축소될 수 있도록
+        }}
+      >
         {messages?.messages.map((message) => (
           <Box
             key={message._id || message.content}
@@ -73,14 +92,20 @@ const Chat = () => {
         ))}
         <div ref={divRef}></div>
       </Box>
+
+      {/* 입력창 - 절대 위치로 하단 고정 */}
       <Paper
         sx={{
-          p: '2px 4px',
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          p: '8px 12px',
           display: 'flex',
-          justifySelf: 'flex-end',
           alignItems: 'center',
-          width: '100%',
-          mb: 4,
+          backgroundColor: 'background.paper',
+          borderRadius: '4px',
+          boxShadow: '0 -2px 8px rgba(0,0,0,0.1)',
         }}
       >
         <InputBase
@@ -104,7 +129,7 @@ const Chat = () => {
           <SendIcon />
         </IconButton>
       </Paper>
-    </Stack>
+    </Box>
   );
 };
 
