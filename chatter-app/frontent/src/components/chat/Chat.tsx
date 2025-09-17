@@ -15,19 +15,17 @@ import { useCreateMessage } from '../../hooks/useCreateMessage';
 import { useEffect, useRef, useState } from 'react';
 import { useGetMessages } from '../../hooks/useGetMessages';
 import { useMessageCreated } from '../../hooks/useMessageCreated';
-import type { Message } from '../../gql/graphql';
 
 const Chat = () => {
   const params = useParams();
   const chatId = params._id!;
 
   const [messageText, setMessageText] = useState('');
-  const [messages, setMessages] = useState<Message[]>([]);
   const { data } = useGetChat({ _id: chatId });
-  const [createMessage, { loading }] = useCreateMessage(chatId);
-  const { data: existingMessages } = useGetMessages({ chatId });
+  const [createMessage, { loading }] = useCreateMessage();
+  const { data: messages } = useGetMessages({ chatId });
   const divRef = useRef<HTMLDivElement | null>(null);
-  const { data: messageCreated } = useMessageCreated({ chatId });
+  useMessageCreated({ chatId });
 
   const scrollToBottom = () => divRef.current?.scrollIntoView();
 
@@ -43,24 +41,6 @@ const Chat = () => {
     setMessageText('');
     scrollToBottom();
   }, [chatId]);
-
-  useEffect(() => {
-    if (existingMessages) {
-      setMessages(existingMessages.messages);
-    }
-  }, [existingMessages]);
-
-  useEffect(() => {
-    if (
-      messageCreated &&
-      messages.at(-1)?._id !== messageCreated.messageCreated._id
-    ) {
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        messageCreated.messageCreated,
-      ]);
-    }
-  }, [messageCreated, messages]);
 
   return (
     <Box
@@ -85,38 +65,43 @@ const Chat = () => {
           minHeight: 0, // flex item이 축소될 수 있도록
         }}
       >
-        {[...messages]
-          .sort(
-            (a, b) =>
-              new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-          )
-          .map((message) => (
-            <Box
-              key={message._id || message.content}
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: '1rem',
-                gap: 2,
-              }}
-            >
-              <Box sx={{ flexShrink: 0 }}>
-                <Avatar src='' sx={{ width: 52, height: 52 }} />
-              </Box>
-              <Box sx={{ flex: 1 }}>
-                <Stack>
-                  <Paper sx={{ width: 'fit-content' }}>
-                    <Typography sx={{ padding: '0.9rem' }}>
-                      {message.content}
+        {messages &&
+          [...messages.messages]
+            .sort(
+              (a, b) =>
+                new Date(a.createdAt).getTime() -
+                new Date(b.createdAt).getTime(),
+            )
+            .map((message) => (
+              <Box
+                key={message._id || message.content}
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  marginBottom: '1rem',
+                  gap: 2,
+                }}
+              >
+                <Box sx={{ flexShrink: 0 }}>
+                  <Avatar src='' sx={{ width: 52, height: 52 }} />
+                </Box>
+                <Box sx={{ flex: 1 }}>
+                  <Stack>
+                    <Paper sx={{ width: 'fit-content' }}>
+                      <Typography sx={{ padding: '0.9rem' }}>
+                        {message.content}
+                      </Typography>
+                    </Paper>
+                    <Typography
+                      variant='caption'
+                      sx={{ marginLeft: '0.25rem' }}
+                    >
+                      {new Date(message.createdAt).toLocaleTimeString()}
                     </Typography>
-                  </Paper>
-                  <Typography variant='caption' sx={{ marginLeft: '0.25rem' }}>
-                    {new Date(message.createdAt).toLocaleTimeString()}
-                  </Typography>
-                </Stack>
+                  </Stack>
+                </Box>
               </Box>
-            </Box>
-          ))}
+            ))}
         <div ref={divRef}></div>
       </Box>
 
