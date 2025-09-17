@@ -5,5 +5,7 @@ export const messageFragment = graphql(/* GraphQL */ `
     _id
     content
     createdAt
+    chatId
+    userId
   }
 `);
