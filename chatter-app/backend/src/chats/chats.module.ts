@@ -13,6 +13,6 @@ import { ChatSchema } from './entities/chat.document';
     forwardRef(() => MessagesModule),
   ],
   providers: [ChatsResolver, ChatsService, ChatsRepository],
-  exports: [ChatsRepository, ChatsService],
+  exports: [ChatsRepository],
 })
 export class ChatsModule {}
