@@ -1,19 +1,12 @@
 import {
   Box,
   Button,
-  FormControlLabel,
-  FormGroup,
-  IconButton,
-  InputBase,
   Modal,
-  Paper,
   Stack,
-  Switch,
   TextField,
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import SearchIcon from '@mui/icons-material/Search';
 import { useCreateChat } from '../../../hooks/useCreateChat';
 import { UNKNOWN_ERROR_MESSAGE } from '../../../constants/errors';
 import router from '../../Routes';
@@ -24,7 +17,6 @@ interface ChatListAddProps {
 }
 
 const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
-  const [isPrivateChat, setIsPrivateChat] = useState(false);
   const [error, setError] = useState<string | undefined>(undefined);
   const [name, setName] = useState<string | undefined>(undefined);
 
@@ -34,7 +26,6 @@ const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
     onClose();
     setError(undefined);
     setName(undefined);
-    setIsPrivateChat(false);
 
     if (chatId) {
       router.navigate(`/chats/${chatId}`);
@@ -60,48 +51,25 @@ const ChatListAdd = ({ open, onClose }: ChatListAddProps) => {
           <Typography variant='h6' component={'h2'}>
             Add Chat
           </Typography>
-          <FormGroup>
-            <FormControlLabel
-              style={{ width: 0 }}
-              control={
-                <Switch
-                  value={isPrivateChat}
-                  onChange={(e) => setIsPrivateChat(e.target.checked)}
-                />
-              }
-              label='Private'
-            />
-          </FormGroup>
-          {isPrivateChat ? (
-            <Paper sx={{ p: '2px 4px', display: 'flex', alignItems: 'center' }}>
-              <InputBase sx={{ ml: 1, flex: 1 }} placeholder='Search Users' />
-              <IconButton sx={{ p: '10px' }}>
-                <SearchIcon />
-              </IconButton>
-            </Paper>
-          ) : (
-            <TextField
-              label='Name'
-              value={name}
-              error={!!error}
-              helperText={error}
-              onChange={(e) => setName(e.target.value)}
-            />
-          )}
+
+          <TextField
+            label='Name'
+            value={name}
+            error={!!error}
+            helperText={error}
+            onChange={(e) => setName(e.target.value)}
+          />
           <Button
             variant='outlined'
             onClick={() => {
-              if (!isPrivateChat && !name?.length) {
+              if (!name?.length) {
                 setError('Name is required');
                 return;
               }
               setError(undefined);
               createChat({
                 variables: {
-                  createChatInput: {
-                    isPrivate: isPrivateChat,
-                    name,
-                  },
+                  createChatInput: { name },
                 },
               })
                 .then(({ data }) => handleClose(data?.createChat._id))

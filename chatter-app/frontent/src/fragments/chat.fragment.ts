@@ -4,8 +4,8 @@ export const chatFragment = graphql(/* GraphQL */ `
   fragment ChatFragment on Chat {
     _id
     name
-    isPrivate
-    userIds
-    userId
+    latestMessage {
+      ...MessageFragment
+    }
   }
 `);
