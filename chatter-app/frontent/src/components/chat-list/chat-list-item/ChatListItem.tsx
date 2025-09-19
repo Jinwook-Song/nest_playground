@@ -37,9 +37,9 @@ const ChatListItem = ({ chat, selected }: ChatListItemProps) => {
                   variant='body2'
                   sx={{ color: 'text.primary', display: 'inline' }}
                 >
-                  Ali Connors
+                  {chat.latestMessage?.user?.username ?? ''}
                 </Typography>
-                {" — I'll be in your neighborhood doing errands this…"}
+                {' ' + (chat.latestMessage?.content ?? '')}
               </>
             }
           />

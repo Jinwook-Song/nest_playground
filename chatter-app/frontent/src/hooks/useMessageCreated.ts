@@ -2,6 +2,7 @@ import { useSubscription } from '@apollo/client/react';
 import { graphql } from '../gql';
 import type { SubscriptionMessageCreatedArgs } from '../gql/graphql';
 import { updateMessages } from '../cache/messages';
+import { updateLatestMessage } from '../cache/latest-message';
 
 const messageCreatedDocument = graphql(/* GraphQL */ `
   subscription messageCreated($chatId: String!) {
@@ -17,6 +18,7 @@ const useMessageCreated = (variables: SubscriptionMessageCreatedArgs) => {
     onData: ({ client, data }) => {
       if (data.data?.messageCreated) {
         updateMessages(client.cache, data.data.messageCreated);
+        updateLatestMessage(client.cache, data.data.messageCreated);
       }
     },
   });
