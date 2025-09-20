@@ -106,6 +106,20 @@ const cache = new InMemoryCache({
     //     // 메시지 리스트 캐시 정책 등
     //   }
     // }
+    Query: {
+      fields: {
+        chats: {
+          keyArgs: false,
+          merge: (existing, incoming, { args }: any) => {
+            const merged = existing ? existing.slice(0) : [];
+            for (let i = 0; i < incoming.length; i++) {
+              merged[args.skip + i] = incoming[i];
+            }
+            return merged;
+          },
+        },
+      },
+    },
   },
 });
 
