@@ -21,8 +21,6 @@ const ChatList = () => {
   }, [countChats]);
 
   useMessageCreated({ chatIds: data?.chats.map((chat) => chat._id) ?? [] });
-  console.log('data?.chats.length', data?.chats.length);
-  console.log('chatsCount', chatsCount);
   return (
     <>
       <ChatListAdd

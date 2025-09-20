@@ -1,11 +1,12 @@
 import type { ApolloCache } from '@apollo/client';
 import type { Message } from '../gql/graphql';
 import { getMessagesDocument } from '../hooks/useGetMessages';
+import { PAGE_SIZE } from '../constants/page-size';
 
 export const updateMessages = (cache: ApolloCache, message: Message) => {
   const messagesQueryOptions = {
     query: getMessagesDocument,
-    variables: { chatId: message.chatId },
+    variables: { chatId: message.chatId, skip: 0, limit: PAGE_SIZE },
   };
   const messages = cache.readQuery({
     ...messagesQueryOptions,

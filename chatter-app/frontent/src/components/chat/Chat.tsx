@@ -14,6 +14,9 @@ import SendIcon from '@mui/icons-material/Send';
 import { useCreateMessage } from '../../hooks/useCreateMessage';
 import { useEffect, useRef, useState } from 'react';
 import { useGetMessages } from '../../hooks/useGetMessages';
+import { PAGE_SIZE } from '../../constants/page-size';
+import { useCountMessages } from '../../hooks/useCountMessages';
+import InfiniteScroll from 'react-infinite-scroller';
 
 const Chat = () => {
   const params = useParams();
@@ -22,8 +25,18 @@ const Chat = () => {
   const [messageText, setMessageText] = useState('');
   const { data } = useGetChat({ _id: chatId });
   const [createMessage, { loading }] = useCreateMessage();
-  const { data: messages } = useGetMessages({ chatId });
+  const { data: messages, fetchMore } = useGetMessages({
+    chatId,
+    skip: 0,
+    limit: PAGE_SIZE,
+  });
   const divRef = useRef<HTMLDivElement | null>(null);
+
+  const { messagesCount, countMessages } = useCountMessages(chatId);
+
+  useEffect(() => {
+    countMessages();
+  }, [countMessages]);
 
   const scrollToBottom = () => divRef.current?.scrollIntoView();
 
@@ -36,8 +49,10 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    setMessageText('');
-    scrollToBottom();
+    if (messages?.messages && messages.messages.length <= PAGE_SIZE) {
+      setMessageText('');
+      scrollToBottom();
+    }
   }, [chatId]);
 
   return (
@@ -63,43 +78,66 @@ const Chat = () => {
           minHeight: 0, // flex item이 축소될 수 있도록
         }}
       >
-        {messages &&
-          [...messages.messages]
-            .sort(
-              (a, b) =>
-                new Date(a.createdAt).getTime() -
-                new Date(b.createdAt).getTime(),
-            )
-            .map((message) => (
-              <Box
-                key={message._id || message.content}
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '1rem',
-                  gap: 2,
-                }}
-              >
-                <Box sx={{ flexShrink: 0 }}>
-                  <Avatar src='' sx={{ width: 52, height: 52 }} />
-                </Box>
-                <Box sx={{ flex: 1 }}>
-                  <Stack>
-                    <Paper sx={{ width: 'fit-content' }}>
-                      <Typography sx={{ padding: '0.9rem' }}>
-                        {message.content}
+        <InfiniteScroll
+          pageStart={0}
+          isReverse
+          loadMore={() => {
+            fetchMore({
+              variables: {
+                skip: messages?.messages.length,
+              },
+            });
+          }}
+          hasMore={
+            messages && messagesCount
+              ? messages.messages.length < messagesCount
+              : false
+          }
+          useWindow={false}
+          threshold={100}
+          initialLoad={false}
+        >
+          {messages &&
+            [...messages.messages]
+              .sort(
+                (a, b) =>
+                  new Date(a.createdAt).getTime() -
+                  new Date(b.createdAt).getTime(),
+              )
+              .map((message) => (
+                <Box
+                  key={message._id || message.content}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    marginBottom: '1rem',
+                    gap: 2,
+                  }}
+                >
+                  <Box sx={{ flexShrink: 0 }}>
+                    <Avatar src='' sx={{ width: 52, height: 52 }} />
+                  </Box>
+                  <Box sx={{ flex: 1 }}>
+                    <Stack>
+                      <Paper sx={{ width: 'fit-content' }}>
+                        <Typography sx={{ padding: '0.9rem' }}>
+                          {message.content}
+                        </Typography>
+                      </Paper>
+                      <Typography
+                        variant='caption'
+                        sx={{ marginLeft: '0.25rem' }}
+                      >
+                        {new Date(message.createdAt).toLocaleDateString()}
+                        {' - '}
+                        {new Date(message.createdAt).toLocaleTimeString()}
                       </Typography>
-                    </Paper>
-                    <Typography
-                      variant='caption'
-                      sx={{ marginLeft: '0.25rem' }}
-                    >
-                      {new Date(message.createdAt).toLocaleTimeString()}
-                    </Typography>
-                  </Stack>
+                    </Stack>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              ))}
+        </InfiniteScroll>
+
         <div ref={divRef}></div>
       </Box>
 

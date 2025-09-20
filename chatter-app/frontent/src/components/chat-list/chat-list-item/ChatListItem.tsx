@@ -39,7 +39,21 @@ const ChatListItem = ({ chat, selected }: ChatListItemProps) => {
                 >
                   {chat.latestMessage?.user?.username ?? ''}
                 </Typography>
-                {' ' + (chat.latestMessage?.content ?? '')}
+                <Typography
+                  component='span'
+                  variant='body2'
+                  sx={{
+                    display: 'inline-block',
+                    ml: 0.5,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    maxWidth: '150px',
+                    verticalAlign: 'top'
+                  }}
+                >
+                  {chat.latestMessage?.content ?? ''}
+                </Typography>
               </>
             }
           />
