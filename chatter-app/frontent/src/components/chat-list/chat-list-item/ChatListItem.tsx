@@ -49,7 +49,7 @@ const ChatListItem = ({ chat, selected }: ChatListItemProps) => {
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
                     maxWidth: '150px',
-                    verticalAlign: 'top'
+                    verticalAlign: 'top',
                   }}
                 >
                   {chat.latestMessage?.content ?? ''}
