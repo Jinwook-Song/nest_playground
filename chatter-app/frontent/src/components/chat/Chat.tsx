@@ -115,7 +115,10 @@ const Chat = () => {
                   }}
                 >
                   <Box sx={{ flexShrink: 0 }}>
-                    <Avatar src='' sx={{ width: 52, height: 52 }} />
+                    <Avatar
+                      src={message.user.imageUrl}
+                      sx={{ width: 52, height: 52 }}
+                    />
                   </Box>
                   <Box sx={{ flex: 1 }}>
                     <Stack>
