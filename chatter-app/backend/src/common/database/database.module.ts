@@ -8,17 +8,12 @@ import { DbMigrationService } from './db-migration.service';
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService) => ({
         uri: configService.get('MONGODB_URI'),
-        // SSL/TLS 관련 옵션 추가
-        ssl: true,
-        tlsInsecure: false,
+        // 지원되는 옵션들만 사용
         retryWrites: true,
         w: 'majority',
-        // 연결 타임아웃 및 재시도 설정
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
-        // 버퍼링 관련 설정
-        bufferCommands: false,
-        bufferMaxEntries: 0,
+        // bufferMaxEntries와 bufferCommands 제거
       }),
       inject: [ConfigService],
     }),
