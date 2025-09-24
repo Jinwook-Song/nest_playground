@@ -1,3 +1,4 @@
+import { getJwt } from './../jwt';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
@@ -12,9 +13,12 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
       jwtFromRequest: ExtractJwt.fromExtractors([
         // 쿠키에서 토큰 추출
         (req: Request) => {
-          const token = req.cookies?.Authentication;
-          return token;
+          if (req.cookies.Authentication) {
+            return req.cookies.Authentication;
+          }
+          return getJwt(req.headers.authorization);
         },
+
         // 헤더에서 토큰 추출
         ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),

@@ -17,6 +17,8 @@ import { onLogout } from '../utils/logout';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { createClient } from 'graphql-ws';
 import { getMainDefinition } from '@apollo/client/utilities';
+import { SetContextLink } from '@apollo/client/link/context';
+import { getToken } from '../utils/token';
 
 // ===========================================
 // 1. 기본 URL 설정
@@ -55,6 +57,15 @@ const publicLink = new ErrorLink(({ error }) => {
   }
 });
 
+const authLink = new SetContextLink((prevContext, _) => {
+  return {
+    headers: {
+      ...prevContext.headers,
+      authorization: getToken(),
+    },
+  };
+});
+
 // ===========================================
 // 3. HTTP 링크 - Query/Mutation 처리
 // ===========================================
@@ -72,6 +83,9 @@ const httpLink = new HttpLink({
 const wsLink = new GraphQLWsLink(
   createClient({
     url: WS_URL, // WebSocket GraphQL 엔드포인트
+    connectionParams: {
+      token: getToken(),
+    },
     // connectionParams: () => ({
     //   // WebSocket 연결 시 인증 정보 (필요시 추가)
     //   authorization: `Bearer ${getToken()}`,
@@ -138,7 +152,7 @@ const cache = new InMemoryCache({
 // ===========================================
 const client = new ApolloClient({
   // 링크 체인: ErrorLink → SplitLink (WS/HTTP)
-  link: publicLink.concat(splitLink),
+  link: publicLink.concat(authLink).concat(splitLink),
   cache,
   // 개발 도구 연결
   devtools: {

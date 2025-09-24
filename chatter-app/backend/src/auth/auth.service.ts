@@ -4,6 +4,7 @@ import type { Request, Response } from 'express';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TokenPayload } from './token-payload.interface';
+import { getJwt } from './jwt';
 
 @Injectable()
 export class AuthService {
@@ -33,9 +34,11 @@ export class AuthService {
       httpOnly: true,
       expires,
     });
+
+    return token;
   }
 
-  verifyWs(request: Request): TokenPayload {
+  verifyWs(request: Request, connectionParams: any = {}): TokenPayload {
     const cookies: string[] = request.headers.cookie?.split(';') || [];
     const authCookie = cookies.find((cookie) =>
       cookie.includes('Authentication'),
@@ -44,9 +47,12 @@ export class AuthService {
       throw new Error('Authentication cookie not found');
     }
     const token = authCookie.split('=')[1];
-    return this.jwtService.verify(token, {
-      secret: this.configService.getOrThrow('JWT_SECRET'),
-    });
+    return this.jwtService.verify(
+      token || getJwt(connectionParams.token) || '',
+      {
+        secret: this.configService.getOrThrow('JWT_SECRET'),
+      },
+    );
   }
 
   async logout(res: Response) {

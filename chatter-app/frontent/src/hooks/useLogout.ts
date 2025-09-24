@@ -1,10 +1,11 @@
 import { API_URL } from '../constants/urls';
+import { fetchWithToken } from '../utils/fetch';
 import { onLogout } from '../utils/logout';
 
 const useLogout = () => {
   const logout = async () => {
     try {
-      const res = await fetch(`${API_URL}/auth/logout`, {
+      const res = await fetchWithToken(`${API_URL}/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
