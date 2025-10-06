@@ -1,3 +1,4 @@
+'use client';
 import {
   Card,
   CardDescription,
@@ -5,8 +6,44 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { LoginFormData, loginSchema } from '@/lib/auth/schema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useState } from 'react';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-export default function LoginForm() {
+interface LoginPageProps {
+  onSubmit: (data: LoginFormData) => Promise<void>;
+}
+
+export default function LoginForm({ onSubmit }: LoginPageProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+  const handleSubmit = async (data: LoginFormData) => {
+    setIsSubmitting(true);
+    try {
+      await onSubmit(data);
+    } catch (error) {
+      console.error('Login failed:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <Card className='w-full max-w-md mx-auto'>
       <CardHeader>
@@ -15,7 +52,55 @@ export default function LoginForm() {
           Enter your credentials to login to your account
         </CardDescription>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className='space-y-4'
+          >
+            <FormField
+              control={form.control}
+              name='email'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='email'
+                      placeholder='Enter your email'
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name='password'
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type='password'
+                      placeholder='Enter your password'
+                      disabled={isSubmitting}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type='submit' className='w-full' disabled={isSubmitting}>
+              {isSubmitting ? 'Logging in...' : 'Login'}
+            </Button>
+          </form>
+        </Form>
+      </CardContent>
     </Card>
   );
 }

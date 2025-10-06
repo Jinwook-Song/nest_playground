@@ -1,5 +1,7 @@
+'use client';
 import Link from 'next/link';
 import LoginForm from '@/components/auth/login-form';
+import { LoginFormData } from '@/lib/auth/schema';
 
 export default function LoginPage() {
   return (
@@ -19,7 +21,9 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-        <LoginForm />
+        <LoginForm
+          onSubmit={async (data: LoginFormData) => console.log(data)}
+        />
       </div>
     </div>
   );
