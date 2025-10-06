@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import SignupForm from '@/components/auth/signup-form';
+import { SignupFormData } from '@/lib/auth/schema';
 
 export default function SignupPage() {
   return (
@@ -19,7 +22,9 @@ export default function SignupPage() {
             </Link>
           </p>
         </div>
-        <SignupForm />
+        <SignupForm
+          onSubmit={async (data: SignupFormData) => console.log(data)}
+        />
       </div>
     </div>
   );
