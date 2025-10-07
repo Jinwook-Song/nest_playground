@@ -25,6 +25,80 @@
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
 
+## PostgreSQL 데이터베이스 설정
+
+### 1. 환경 변수 설정
+
+먼저 `.env` 파일을 생성하세요:
+
+```bash
+$ cp .env.example .env
+```
+
+필요에 따라 `.env` 파일의 값을 수정하세요.
+
+### 2. Docker Compose로 PostgreSQL 실행
+
+```bash
+# PostgreSQL 시작 (백그라운드)
+$ docker-compose up -d
+
+# 로그 확인
+$ docker-compose logs -f postgres
+
+# 상태 확인
+$ docker-compose ps
+
+# PostgreSQL 중지
+$ docker-compose down
+
+# 데이터까지 완전 삭제
+$ docker-compose down -v
+```
+
+### 3. PostgreSQL 접속
+
+**psql CLI로 접속:**
+```bash
+$ docker-compose exec postgres psql -U postgres -d fotosnap
+```
+
+**pgAdmin으로 접속:**
+1. 브라우저에서 http://localhost:5050 접속
+2. 로그인: admin@fotosnap.com / admin
+3. Add New Server:
+   - Name: fotosnap
+   - Host: postgres
+   - Port: 5432
+   - Username: postgres
+   - Password: postgres
+
+**외부 클라이언트로 접속:**
+- Host: localhost
+- Port: 5432
+- Database: fotosnap
+- Username: postgres
+- Password: postgres
+
+### 4. 유용한 Docker 명령어
+
+```bash
+# 컨테이너 재시작
+$ docker-compose restart postgres
+
+# PostgreSQL 로그 실시간 보기
+$ docker-compose logs -f postgres
+
+# PostgreSQL 컨테이너 내부 접속
+$ docker-compose exec postgres sh
+
+# 데이터베이스 백업
+$ docker-compose exec postgres pg_dump -U postgres fotosnap > backup.sql
+
+# 데이터베이스 복원
+$ docker-compose exec -T postgres psql -U postgres fotosnap < backup.sql
+```
+
 ## Project setup
 
 ```bash
