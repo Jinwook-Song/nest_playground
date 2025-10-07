@@ -19,5 +19,6 @@ import { drizzle } from 'drizzle-orm/node-postgres';
       inject: [ConfigService],
     },
   ],
+  exports: [DATABASE_CONNECTION],
 })
 export class DatabaseModule {}
