@@ -8,11 +8,12 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { SignupFormData, signupSchema } from '@/lib/auth/schema';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormSetError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import {
   Form,
+  FormRootError,
   FormControl,
   FormField,
   FormItem,
@@ -23,7 +24,10 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 interface SignupPageProps {
-  onSubmit: (data: SignupFormData) => Promise<void>;
+  onSubmit: (
+    data: SignupFormData,
+    setError: UseFormSetError<SignupFormData>,
+  ) => Promise<void>;
 }
 
 export default function SignupForm({ onSubmit }: SignupPageProps) {
@@ -42,7 +46,7 @@ export default function SignupForm({ onSubmit }: SignupPageProps) {
     setIsSubmitting(true);
 
     try {
-      await onSubmit(data);
+      await onSubmit(data, form.setError);
     } catch (error) {
       console.error('Signup failed:', error);
     } finally {
@@ -64,6 +68,7 @@ export default function SignupForm({ onSubmit }: SignupPageProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className='space-y-4'
           >
+            <FormRootError />
             <FormField
               control={form.control}
               name='name'

@@ -4,14 +4,34 @@ import Link from 'next/link';
 import SignupForm from '@/components/auth/signup-form';
 import { SignupFormData } from '@/lib/auth/schema';
 import { authClient } from '@/lib/auth/client';
+import { useRouter } from 'next/navigation';
+import { UseFormSetError } from 'react-hook-form';
 
 export default function SignupPage() {
-  const handleSubmit = async ({ name, email, password }: SignupFormData) => {
-    await authClient.signUp.email({
+  const router = useRouter();
+
+  const handleSubmit = async (
+    { name, email, password }: SignupFormData,
+    setError: UseFormSetError<SignupFormData>,
+  ) => {
+    const { error } = await authClient.signUp.email({
       name,
       email,
       password,
     });
+
+    if (error) {
+      console.error(error);
+      setError('root', { message: error.message });
+      return;
+    }
+
+    await authClient.signIn.email({
+      email,
+      password,
+    });
+
+    router.push('/');
   };
 
   return (

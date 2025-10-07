@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { LoginFormData, loginSchema } from '@/lib/auth/schema';
-import { useForm } from 'react-hook-form';
+import { useForm, UseFormSetError } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import {
@@ -17,12 +17,16 @@ import {
   FormLabel,
   FormControl,
   FormMessage,
+  FormRootError,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 
 interface LoginPageProps {
-  onSubmit: (data: LoginFormData) => Promise<void>;
+  onSubmit: (
+    data: LoginFormData,
+    setError: UseFormSetError<LoginFormData>,
+  ) => Promise<void>;
 }
 
 export default function LoginForm({ onSubmit }: LoginPageProps) {
@@ -37,7 +41,7 @@ export default function LoginForm({ onSubmit }: LoginPageProps) {
   const handleSubmit = async (data: LoginFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit(data);
+      await onSubmit(data, form.setError);
     } catch (error) {
       console.error('Login failed:', error);
     } finally {
@@ -58,6 +62,7 @@ export default function LoginForm({ onSubmit }: LoginPageProps) {
             onSubmit={form.handleSubmit(handleSubmit)}
             className='space-y-4'
           >
+            <FormRootError />
             <FormField
               control={form.control}
               name='email'

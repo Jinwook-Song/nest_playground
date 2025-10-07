@@ -1,15 +1,33 @@
 'use client';
+
 import Link from 'next/link';
 import LoginForm from '@/components/auth/login-form';
 import { LoginFormData } from '@/lib/auth/schema';
 import { authClient } from '@/lib/auth/client';
+import { useRouter } from 'next/navigation';
+import { UseFormSetError } from 'react-hook-form';
 
 export default function LoginPage() {
-  const handleSubmit = async ({ email, password }: LoginFormData) => {
-    await authClient.signIn.email({
+  const router = useRouter();
+
+  const handleSubmit = async (
+    { email, password }: LoginFormData,
+    setError: UseFormSetError<LoginFormData>,
+  ) => {
+    const { error } = await authClient.signIn.email({
       email,
       password,
     });
+
+    if (error) {
+      console.error(error);
+      setError('root', {
+        message: 'Invalid email or password. Please try again.',
+      });
+      return;
+    }
+
+    router.push('/');
   };
 
   return (
