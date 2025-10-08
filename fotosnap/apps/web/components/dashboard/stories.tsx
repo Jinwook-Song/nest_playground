@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Card } from '../ui/card';
+import { Card } from '@/components/ui/card';
 
 interface Story {
   id: string;
