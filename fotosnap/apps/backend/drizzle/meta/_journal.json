@@ -8,6 +8,13 @@
       "when": 1759859012366,
       "tag": "0000_fantastic_master_mold",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1759903307275,
+      "tag": "0001_mighty_star_brand",
+      "breakpoints": true
     }
   ]
 }
