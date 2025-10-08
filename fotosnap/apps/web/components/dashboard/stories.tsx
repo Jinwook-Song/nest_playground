@@ -44,7 +44,7 @@ const mockStories: Story[] = [
   },
 ];
 
-export function Stories() {
+export default function Stories() {
   return (
     <Card className='p-4'>
       <div className='flex space-x-4 overflow-x-auto scrollbar-hide pb-2'>
