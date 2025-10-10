@@ -1,8 +1,8 @@
 import { BadRequestException } from '@nestjs/common';
 import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer-options.interface';
+import { randomUUID } from 'crypto';
 import { Request } from 'express';
 import { diskStorage } from 'multer';
-import { v4 as uuidv4 } from 'uuid';
 
 export const editFileName = (
   req: Request,
@@ -11,7 +11,7 @@ export const editFileName = (
 ) => {
   const name = file.originalname.split('.')[0];
   const fileExtension = file.originalname.split('.')[1];
-  const randomName = uuidv4();
+  const randomName = randomUUID();
   callback(null, `${name}-${Date.now()}-${randomName}.${fileExtension}`);
 };
 

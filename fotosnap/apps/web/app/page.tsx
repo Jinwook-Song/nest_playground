@@ -12,7 +12,20 @@ export default function Home() {
   const [isPhotoUploadOpen, setIsPhotoUploadOpen] = useState(false);
 
   const handlePhotoUpload = async (file: File, caption: string) => {
-    console.log(file, caption);
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('/api/upload/image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      const { filename } = await response.json();
+      console.log('Photo uploaded successfully', filename);
+    } else {
+      console.error('Failed to upload photo');
+    }
   };
 
   return (

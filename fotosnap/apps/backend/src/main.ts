@@ -6,6 +6,8 @@ async function bootstrap() {
     bodyParser: false,
   });
 
+  app.setGlobalPrefix('api');
+
   await app.listen(process.env.PORT ?? 3001);
 }
 bootstrap();
