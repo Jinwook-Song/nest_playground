@@ -7,9 +7,12 @@ import { useState } from 'react';
 import PhotoUpload from '@/components/dashboard/photo-upload';
 import { Fab } from '@/components/ui/fab';
 import { Plus } from 'lucide-react';
+import { trpc } from '@/lib/trpc/client';
 
 export default function Home() {
   const [isPhotoUploadOpen, setIsPhotoUploadOpen] = useState(false);
+  const posts = trpc.postsRouter.findAll.useQuery();
+  const createPost = trpc.postsRouter.create.useMutation({});
 
   const handlePhotoUpload = async (file: File, caption: string) => {
     const formData = new FormData();
@@ -22,7 +25,10 @@ export default function Home() {
 
     if (response.ok) {
       const { filename } = await response.json();
-      console.log('Photo uploaded successfully', filename);
+      await createPost.mutateAsync({
+        image: filename,
+        caption,
+      });
     } else {
       console.error('Failed to upload photo');
     }
@@ -34,7 +40,7 @@ export default function Home() {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           <div className='lg:col-span-2 space-y-6'>
             <Stories />
-            <Feed />
+            <Feed posts={posts.data ?? []} />
           </div>
           <div className='lg:sticky lg:top-8 lg:h-fit'>
             <Sidebar />

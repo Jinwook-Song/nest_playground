@@ -13,7 +13,10 @@ export class PostsRouter {
 
   @Mutation({ input: createPostSchema, output: postSchema })
   async create(@Input() createPostInput: CreatePostInput) {
-    return this.postsService.create(createPostInput, '123');
+    return this.postsService.create(
+      createPostInput,
+      'JeCmIszoSnV1ocnCKRfdPGKbd3Inz9mk',
+    );
   }
 
   @Query({ output: z.array(postSchema) })
