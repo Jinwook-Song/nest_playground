@@ -10,6 +10,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { PostsModule } from './posts/posts.module';
 import { TRPCModule } from 'nestjs-trpc';
+import { UsersModule } from './auth/users/users.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { TRPCModule } from 'nestjs-trpc';
       inject: [DATABASE_CONNECTION, ConfigService],
     }),
     PostsModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [
