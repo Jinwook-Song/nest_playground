@@ -11,8 +11,14 @@ import { trpc } from '@/lib/trpc/client';
 
 export default function Home() {
   const [isPhotoUploadOpen, setIsPhotoUploadOpen] = useState(false);
+
+  const utils = trpc.useUtils();
   const posts = trpc.postsRouter.findAll.useQuery();
-  const createPost = trpc.postsRouter.create.useMutation({});
+  const createPost = trpc.postsRouter.create.useMutation({
+    onSuccess: () => {
+      utils.postsRouter.findAll.invalidate();
+    },
+  });
 
   const handlePhotoUpload = async (file: File, caption: string) => {
     const formData = new FormData();

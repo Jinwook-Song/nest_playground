@@ -2,7 +2,7 @@
 import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Heart, MessageCircle } from 'lucide-react';
+import { Heart, MessageCircle, UserIcon } from 'lucide-react';
 
 interface Post {
   id: number;
@@ -23,19 +23,35 @@ interface FeedProps {
 }
 
 export default function Feed({ posts }: FeedProps) {
+  const getImageUrl = (image: string) => {
+    return `${process.env.NEXT_PUBLIC_API_URL}/uploads/images/${image}`;
+  };
+
+  const getAvatarUrl = (avatar: string) => {
+    if (!avatar) return '';
+    return `${process.env.NEXT_PUBLIC_API_URL}/uploads/avatars/${avatar}`;
+  };
+
   return (
     <div className='space-y-6'>
       {posts.map((post) => (
         <Card key={post.id} className='overflow-hidden'>
           <div className='flex items-center justify-between p-4'>
             <div className='flex items-center space-x-3'>
-              <Image
-                src={post.user.avatar}
-                alt={post.user.username}
-                width={64}
-                height={64}
-                className='w-8 h-8 rounded-full'
-              />
+              {getAvatarUrl(post.user.avatar) ? (
+                <Image
+                  src={getAvatarUrl(post.user.avatar)}
+                  alt={post.user.username}
+                  width={64}
+                  height={64}
+                  className='w-8 h-8 rounded-full'
+                />
+              ) : (
+                <div className='w-8 h-8 rounded-full bg-muted flex items-center justify-center'>
+                  <UserIcon className='w-4 h-4 text-muted-foreground' />
+                </div>
+              )}
+
               <span className='font-semibold text-sm'>
                 {post.user.username}
               </span>
@@ -44,11 +60,10 @@ export default function Feed({ posts }: FeedProps) {
 
           <div className='aspect-square relative'>
             <Image
-              src={post.image}
+              src={getImageUrl(post.image)}
               alt={post.caption}
-              className='w-full h-full object-cover'
-              width={600}
-              height={600}
+              className='object-cover'
+              fill
             />
           </div>
 
