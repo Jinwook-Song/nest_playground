@@ -5,8 +5,11 @@ import { Card } from '../ui/card';
 import { authClient } from '@/lib/auth/client';
 import { ThemeToggle } from '../theme/theme-toggle';
 import { Button } from '../ui/button';
-import { LogOut } from 'lucide-react';
+import { Camera, LogOut, UserIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { getImageUrl } from '@/lib/image';
+import { useState } from 'react';
+import AvatarUpload from './avatar-upload';
 
 interface SuggestedUser {
   id: string;
@@ -62,23 +65,51 @@ const mockSuggestedUsers: SuggestedUser[] = [
 
 export default function Sidebar() {
   const { data: session } = authClient.useSession();
+  const [isAvatarUploadOpen, setIsAvatarUploadOpen] = useState(false);
   const router = useRouter();
+
   const handleLogout = async () => {
     await authClient.signOut();
     router.push('/login');
+  };
+
+  const handleAvatarUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+    await fetch('/api/upload/avatar', {
+      method: 'POST',
+      body: formData,
+    });
   };
 
   return (
     <div className='space-y-6'>
       <Card className='p-4'>
         <div className='flex items-center space-x-3 mb-4'>
-          <Image
-            src='https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=facearea&w=60&h=60&facepad=2'
-            alt='User Avatar'
-            width={60}
-            height={60}
-            className='w-14 h-14 rounded-full'
-          />
+          <div className='relative'>
+            {session?.user?.image ? (
+              <Image
+                src={getImageUrl(session?.user?.image)}
+                alt='User Avatar'
+                width={60}
+                height={60}
+                className='w-14 h-14 rounded-full'
+              />
+            ) : (
+              <div className='w-12 h-12 rounded-full bg-muted flex items-center justify-center'>
+                <UserIcon className='w-4 h-4 text-muted-foreground' />
+              </div>
+            )}
+            <Button
+              size={'icon'}
+              title='Change Avatar'
+              className='absolute -bottom-1 -right-1 w-6 h-6 bg-primary text-primary-foreground rounded-full p-1 hover:brightness-105'
+              onClick={() => setIsAvatarUploadOpen(true)}
+            >
+              <Camera className='w-3 h-3' />
+            </Button>
+          </div>
+
           <div className='flex-1 min-w-0'>
             <div className='font-semibold truncate'>{session?.user?.email}</div>
             <div className='text-sm text-muted-foreground truncate'>
@@ -136,6 +167,12 @@ export default function Sidebar() {
           ))}
         </div>
       </Card>
+      <AvatarUpload
+        open={isAvatarUploadOpen}
+        onOpenChange={setIsAvatarUploadOpen}
+        onSubmit={handleAvatarUpload}
+        currentAvatar={session?.user?.image}
+      />
     </div>
   );
 }
