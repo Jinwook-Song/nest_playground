@@ -39,7 +39,7 @@ export class PostsService {
       id: post.id,
       user: {
         username: post.user.name,
-        avatar: '',
+        avatar: post.user.image || '',
       },
       image: post.image,
       caption: post.caption,
