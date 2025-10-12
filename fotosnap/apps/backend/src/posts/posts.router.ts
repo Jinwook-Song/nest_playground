@@ -10,6 +10,8 @@ import {
 import {
   CreatePostInput,
   createPostSchema,
+  LikePostInput,
+  likePostSchema,
   postSchema,
 } from './schemas/trpc.schema';
 import { PostsService } from './posts.service';
@@ -31,7 +33,15 @@ export class PostsRouter {
   }
 
   @Query({ output: z.array(postSchema) })
-  async findAll() {
-    return this.postsService.findAll();
+  async findAll(@Ctx() ctx: AppContext) {
+    return this.postsService.findAll(ctx.user.id);
+  }
+
+  @Mutation({ input: likePostSchema })
+  async likePost(
+    @Input() likePostInput: LikePostInput,
+    @Ctx() ctx: AppContext,
+  ) {
+    return this.postsService.likePost(likePostInput.postId, ctx.user.id);
   }
 }

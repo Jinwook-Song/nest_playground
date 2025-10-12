@@ -17,7 +17,13 @@ export const postSchema = z.object({
   comments: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
+  isLiked: z.boolean().optional(),
+});
+
+export const likePostSchema = z.object({
+  postId: z.number(),
 });
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 export type Post = z.infer<typeof postSchema>;
+export type LikePostInput = z.infer<typeof likePostSchema>;

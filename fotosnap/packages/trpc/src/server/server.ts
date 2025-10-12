@@ -21,6 +21,7 @@ const appRouter = t.router({
       comments: z.number(),
       createdAt: z.string(),
       updatedAt: z.string(),
+      isLiked: z.boolean().optional(),
     })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     findAll: publicProcedure.output(z.array(z.object({
       id: z.number(),
@@ -34,7 +35,11 @@ const appRouter = t.router({
       comments: z.number(),
       createdAt: z.string(),
       updatedAt: z.string(),
-    }))).query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
+      isLiked: z.boolean().optional(),
+    }))).query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    likePost: publicProcedure.input(z.object({
+      postId: z.number(),
+    })).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
   })
 });
 export type AppRouter = typeof appRouter;
