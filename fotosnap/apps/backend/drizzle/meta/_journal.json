@@ -15,6 +15,13 @@
       "when": 1759903307275,
       "tag": "0001_mighty_star_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1760272226334,
+      "tag": "0002_natural_king_bedlam",
+      "breakpoints": true
     }
   ]
 }
