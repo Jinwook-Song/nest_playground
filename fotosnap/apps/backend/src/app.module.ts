@@ -12,6 +12,8 @@ import { PostsModule } from './posts/posts.module';
 import { TRPCModule } from 'nestjs-trpc';
 import { UsersModule } from './auth/users/users.module';
 import { UploadModule } from './upload/upload.module';
+import { AppContext } from './app.context';
+import { AuthTRPCMiddleware } from './auth/auth-trpc.middleware';
 
 @Module({
   imports: [
@@ -20,6 +22,7 @@ import { UploadModule } from './upload/upload.module';
     TRPCModule.forRoot({
       autoSchemaFile: '../../packages/trpc/src/server',
       basePath: '/api/trpc',
+      context: AppContext,
     }),
     AuthModule.forRootAsync({
       imports: [DatabaseModule, ConfigModule],
@@ -42,6 +45,8 @@ import { UploadModule } from './upload/upload.module';
   ],
   controllers: [AppController],
   providers: [
+    AuthTRPCMiddleware,
+    AppContext,
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
