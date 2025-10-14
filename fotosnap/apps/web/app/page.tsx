@@ -20,6 +20,26 @@ export default function Home() {
     },
   });
 
+  // Optimistic update for like functionality
+  const likePost = trpc.postsRouter.likePost.useMutation({
+    onMutate: ({ postId }) => {
+      utils.postsRouter.findAll.setData(undefined, (oldPosts) => {
+        if (!oldPosts) return oldPosts;
+
+        return oldPosts.map((post) => {
+          if (post.id !== postId) return post;
+
+          const wasLiked = post.isLiked;
+          return {
+            ...post,
+            isLiked: !wasLiked,
+            likes: wasLiked ? post.likes - 1 : post.likes + 1,
+          };
+        });
+      });
+    },
+  });
+
   const handlePhotoUpload = async (file: File, caption: string) => {
     const formData = new FormData();
     formData.append('image', file);
@@ -46,7 +66,10 @@ export default function Home() {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           <div className='lg:col-span-2 space-y-6'>
             <Stories />
-            <Feed posts={posts.data ?? []} />
+            <Feed
+              posts={posts.data ?? []}
+              onLikePost={(postId) => likePost.mutate({ postId })}
+            />
           </div>
           <div className='lg:sticky lg:top-8 lg:h-fit'>
             <Sidebar />
