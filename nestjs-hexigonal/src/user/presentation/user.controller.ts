@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common';
 import {
   CreateUserDto,
   CreateUserUseCase,
-} from '../domain/use-cases/create-user.use-case';
+} from '../application/use-cases/create-user.use-case';
 import { User } from '../domain/entities/user.entity';
 
 @Controller('users')
