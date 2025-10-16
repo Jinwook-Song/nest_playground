@@ -7,3 +7,5 @@ export interface UserRepositoryPort {
   findAll(): Promise<User[]> | User[];
   delete(id: string): Promise<void> | void;
 }
+
+export const USER_REPOSITORY = Symbol('USER_REPOSITORY');
