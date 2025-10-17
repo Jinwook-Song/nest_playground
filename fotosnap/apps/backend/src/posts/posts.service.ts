@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CreatePostInput, Post } from './schemas/trpc.schema';
+import { CreatePostInput, Post } from '@repo/trpc/schemas';
 import { DATABASE_CONNECTION } from 'src/database/database-connection';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { schema } from 'src/database/database.module';
@@ -16,14 +16,11 @@ export class PostsService {
   ) {}
 
   async create(createPostInput: CreatePostInput, userId: string) {
-    await this.db
-      .insert(post)
-      .values({
-        userId,
-        caption: createPostInput.caption,
-        image: createPostInput.image,
-      })
-      .returning();
+    await this.db.insert(post).values({
+      userId,
+      caption: createPostInput.caption,
+      image: createPostInput.image,
+    });
   }
 
   async findAll(userId: string): Promise<Post[]> {

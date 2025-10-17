@@ -13,7 +13,7 @@ import {
   LikePostInput,
   likePostSchema,
   postSchema,
-} from './schemas/trpc.schema';
+} from '@repo/trpc/schemas';
 import { PostsService } from './posts.service';
 import { z } from 'zod';
 import { AuthTRPCMiddleware } from 'src/auth/auth-trpc.middleware';
@@ -24,7 +24,7 @@ import { AppContext } from 'src/app.context.interface';
 export class PostsRouter {
   constructor(private readonly postsService: PostsService) {}
 
-  @Mutation({ input: createPostSchema, output: postSchema })
+  @Mutation({ input: createPostSchema })
   async create(
     @Input() createPostInput: CreatePostInput,
     @Ctx() ctx: AppContext,

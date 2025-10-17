@@ -3,7 +3,14 @@
   "version": "1.0.0",
   "private": true,
   "exports": {
-    "./router": "./src/server/server.ts"
+    "./router": {
+      "types": "./dist/server/server.d.ts",
+      "default": "./dist/server/server.js"
+    },
+    "./schemas": {
+      "types": "./dist/schemas/post.schema.d.ts",
+      "default": "./dist/schemas/post.schema.js"
+    }
   },
   "peerDependencies": {
     "zod": "^4.1.11",
