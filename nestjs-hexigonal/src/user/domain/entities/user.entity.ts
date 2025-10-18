@@ -47,7 +47,7 @@ export class User {
   }
 
   updateName(name: string) {
-    if (!name || name.trim().length > 2) {
+    if (!name || name.trim().length < 2) {
       throw new Error('Name must be at least 2 characters long');
     }
 
