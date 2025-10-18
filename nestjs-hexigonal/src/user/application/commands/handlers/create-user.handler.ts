@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateUserCommand } from '../create-user.command';
 import { User } from 'src/user/domain/entities/user.entity';
 import { ConflictException, Inject } from '@nestjs/common';
@@ -12,6 +12,7 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
   constructor(
     @Inject(USER_REPOSITORY)
     private readonly userRepository: UserRepositoryPort,
+    private readonly publisher: EventPublisher,
   ) {}
 
   async execute(command: CreateUserCommand): Promise<User> {
@@ -19,7 +20,9 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     if (existingUser) throw new ConflictException('Email already in use');
 
     const user = User.create(command.name, command.email);
+    const userWithEvents = this.publisher.mergeObjectContext(user);
+    userWithEvents.commit();
 
-    return this.userRepository.save(user);
+    return userWithEvents;
   }
 }

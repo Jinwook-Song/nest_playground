@@ -1,14 +1,18 @@
 import { UserId } from '../value-objects/user-id.vo';
 import { Email } from '../value-objects/email.vo';
+import { AggregateRoot } from '@nestjs/cqrs';
+import { UserCreatedEvent } from '../events/user-created.event';
 
-export class User {
+export class User extends AggregateRoot {
   constructor(
     private readonly id: UserId,
     private name: string,
     private email: Email,
     private readonly createdAt: Date,
     private updatedAt: Date,
-  ) {}
+  ) {
+    super();
+  }
 
   static create(name: string, email: string) {
     if (!name || name.trim().length < 2) {
@@ -17,13 +21,24 @@ export class User {
       );
     }
 
-    return new User(
-      new UserId(),
+    const userId = new UserId();
+    const user = new User(
+      userId,
       name.trim(),
       new Email(email),
       new Date(),
       new Date(),
     );
+
+    user.apply(
+      new UserCreatedEvent(
+        user.getId().getValue(),
+        user.getName(),
+        user.getEmail().getValue(),
+      ),
+    );
+
+    return user;
   }
 
   getId(): UserId {
