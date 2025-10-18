@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './user/user.module';
+import { CqrsModule } from '@nestjs/cqrs';
 
 @Module({
-  imports: [UserModule],
+  imports: [CqrsModule.forRoot(), UserModule],
   controllers: [],
   providers: [],
 })
