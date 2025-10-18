@@ -4,12 +4,14 @@ import { USER_REPOSITORY } from './application/ports/user.repository.port';
 import { InMemoryUserRepository } from './infrastructure/adapters/in-memory-user.repository';
 import { UserController } from './presentation/user.controller';
 import { GetUserUseCase } from './application/use-cases/get-user.use-case';
+import { ListUsersUseCase } from './application/use-cases/list-users.use-case';
 
 @Module({
   controllers: [UserController],
   providers: [
     CreateUserUseCase,
     GetUserUseCase,
+    ListUsersUseCase,
     {
       provide: USER_REPOSITORY,
       useClass: InMemoryUserRepository,
