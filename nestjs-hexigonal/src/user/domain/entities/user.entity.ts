@@ -57,7 +57,7 @@ export class User extends AggregateRoot {
     return this.createdAt;
   }
 
-  getUpatedAt(): Date {
+  getUpdatedAt(): Date {
     return this.updatedAt;
   }
 

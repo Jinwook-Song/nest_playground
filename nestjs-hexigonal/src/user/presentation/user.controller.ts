@@ -68,7 +68,7 @@ export class UserController {
       name: user.getName(),
       email: user.getEmail().getValue(),
       createdAt: user.getCreatedAt(),
-      updatedAt: user.getUpatedAt(),
+      updatedAt: user.getUpdatedAt(),
       accountAge: user.getAccountAge(),
     };
   }

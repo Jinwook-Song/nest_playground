@@ -20,9 +20,10 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     if (existingUser) throw new ConflictException('Email already in use');
 
     const user = User.create(command.name, command.email);
-    const userWithEvents = this.publisher.mergeObjectContext(user);
+    const savedUser = await this.userRepository.save(user);
+    const userWithEvents = this.publisher.mergeObjectContext(savedUser);
     userWithEvents.commit();
 
-    return userWithEvents;
+    return savedUser;
   }
 }
