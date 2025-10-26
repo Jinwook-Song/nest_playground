@@ -8,9 +8,16 @@
       "default": "./dist/server/server.js"
     },
     "./schemas": {
-      "types": "./dist/schemas/post.schema.d.ts",
-      "default": "./dist/schemas/post.schema.js"
+      "types": "./dist/schemas/index.d.ts",
+      "default": "./dist/schemas/index.js"
     }
+  },
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "zod": "^4.1.11",
