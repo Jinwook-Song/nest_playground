@@ -24,6 +24,10 @@
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",
     "@nestjs/platform-express": "^8.0.0",
+    "@mikro-orm/core": "4.5.10",
+    "@mikro-orm/migrations": "4.5.10",
+    "@mikro-orm/nestjs": "4.3.1",
+    "@mikro-orm/sqlite": "4.5.10",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^7.2.0"
