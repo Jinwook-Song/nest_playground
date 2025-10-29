@@ -4,7 +4,6 @@ import {
   Mutation,
   Query,
   Router,
-  TRPCContext,
   UseMiddlewares,
 } from '@mguay/nestjs-trpc';
 import {

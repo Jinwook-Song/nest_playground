@@ -5,10 +5,12 @@ import { Pool } from 'pg';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import * as authSchema from '../auth/schema';
 import * as postSchema from '../posts/schemas/schema';
+import * as commentSchema from '../comments/schemas/schema';
 
 export const schema = {
   ...authSchema,
   ...postSchema,
+  ...commentSchema,
 };
 
 @Module({
