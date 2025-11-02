@@ -40,6 +40,32 @@ export default function Home() {
     },
   });
 
+  const createComment = trpc.commentsRouter.createComment.useMutation({
+    onSuccess: (_, variables) => {
+      // refetch comments
+      utils.commentsRouter.findByPostId.invalidate({
+        postId: variables.postId,
+      });
+      // cache update
+      utils.postsRouter.findAll.setData(undefined, (oldPosts) => {
+        if (!oldPosts) return oldPosts;
+
+        return oldPosts.map((post) => {
+          if (post.id !== variables.postId) return post;
+
+          return { ...post, comments: post.comments + 1 };
+        });
+      });
+    },
+  });
+
+  const deleteComment = trpc.commentsRouter.deleteComment.useMutation({
+    onSuccess: () => {
+      utils.commentsRouter.findByPostId.invalidate();
+      utils.postsRouter.findAll.invalidate();
+    },
+  });
+
   const handlePhotoUpload = async (file: File, caption: string) => {
     const formData = new FormData();
     formData.append('image', file);
@@ -69,6 +95,12 @@ export default function Home() {
             <Feed
               posts={posts.data ?? []}
               onLikePost={(postId) => likePost.mutate({ postId })}
+              onAddComment={(postId, text) =>
+                createComment.mutate({ postId, text })
+              }
+              onDeleteComment={(commentId) =>
+                deleteComment.mutate({ commentId })
+              }
             />
           </div>
           <div className='lg:sticky lg:top-8 lg:h-fit'>

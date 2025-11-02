@@ -6,13 +6,34 @@ import { Button } from '@/components/ui/button';
 import { Heart, MessageCircle, UserIcon } from 'lucide-react';
 import { getImageUrl } from '@/lib/image';
 import { cn } from '@/lib/utils';
+import { useState } from 'react';
+import PostComments from './post-comments';
 
 interface FeedProps {
   posts: Post[];
   onLikePost: (postId: number) => void;
+  onAddComment: (postId: number, text: string) => void;
+  onDeleteComment: (commentId: number) => void;
 }
 
-export default function Feed({ posts, onLikePost }: FeedProps) {
+export default function Feed({
+  posts,
+  onLikePost,
+  onAddComment,
+  onDeleteComment,
+}: FeedProps) {
+  const [expandedComments, setExpandedComments] = useState<Set<number>>(
+    new Set(),
+  );
+
+  const toggleComments = (postId: number) => {
+    setExpandedComments((prev) => {
+      const newSet = new Set(prev);
+      newSet.has(postId) ? newSet.delete(postId) : newSet.add(postId);
+      return newSet;
+    });
+  };
+
   const renderUserAvatar = (avatar: string, username: string) => {
     const avatarUrl = getImageUrl(avatar);
 
@@ -90,10 +111,17 @@ export default function Feed({ posts, onLikePost }: FeedProps) {
                 <Button
                   variant='ghost'
                   size='sm'
-                  onClick={() => {}}
+                  onClick={() => toggleComments(post.id)}
                   className='p-0 h-auto'
                 >
-                  <MessageCircle className='w-6 h-6 text-foreground' />
+                  <MessageCircle
+                    className={cn(
+                      'w-6 h-6',
+                      expandedComments.has(post.id)
+                        ? 'text-primary fill-primary'
+                        : 'text-foreground',
+                    )}
+                  />
                 </Button>
               </div>
             </div>
@@ -118,6 +146,16 @@ export default function Feed({ posts, onLikePost }: FeedProps) {
             <div className='text-xs text-muted-foreground uppercase'>
               {formatDate(post.createdAt)}
             </div>
+
+            {expandedComments.has(post.id) && (
+              <div className='pt-4 border-t'>
+                <PostComments
+                  postId={post.id}
+                  onAddComment={onAddComment}
+                  onDeleteComment={onDeleteComment}
+                />
+              </div>
+            )}
           </div>
         </Card>
       ))}
