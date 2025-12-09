@@ -9,7 +9,7 @@ export class ChatsController {
 
   @Post()
   chat(
-    @Body() body: { messages: UIMessage[]; model?: string },
+    @Body() body: { messages: UIMessage[]; model: string },
     @Res() res: Response,
   ) {
     this.chatService.chat(body.messages, body.model, res);
