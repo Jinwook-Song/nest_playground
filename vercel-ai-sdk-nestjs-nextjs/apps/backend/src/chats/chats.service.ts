@@ -13,7 +13,10 @@ export class ChatsService {
   constructor(private readonly toolsService: ToolsService) {}
 
   async chat(messages: UIMessage[], model: string, res: Response) {
-    const modelMessages: ModelMessage[] = [...convertToModelMessages(messages)];
+    const modelMessages: ModelMessage[] = [
+      { role: 'system', content: this.getSystemPrompt() },
+      ...convertToModelMessages(messages),
+    ];
     const result = streamText({
       model,
       messages: modelMessages,
@@ -21,5 +24,9 @@ export class ChatsService {
     });
 
     result.pipeUIMessageStreamToResponse(res);
+  }
+
+  private getSystemPrompt() {
+    return 'You are a generic chat bot that can answer questions and help with tasks.';
   }
 }
