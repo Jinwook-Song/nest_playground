@@ -2,17 +2,20 @@
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 export default function Home() {
   const [selectedModel, setSelectedModel] = useState<string>(
     'google/gemini-2.5-flash-lite',
   );
 
+  const selectedModelRef = useRef<string>(selectedModel);
+  selectedModelRef.current = selectedModel;
+
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: `${process.env.NEXT_PUBLIC_API_URL}/chats`,
-      body: { model: selectedModel },
+      body: () => ({ model: selectedModelRef.current }),
     }),
   });
 
