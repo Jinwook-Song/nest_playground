@@ -2,10 +2,13 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
+import * as chatSchema from './chats/schema';
 
 export const DATABASE_CONNECTION = 'DATABASE_CONNECTION';
 
-export const schema = {};
+export const schema = {
+  ...chatSchema,
+};
 
 @Global()
 @Module({
@@ -21,5 +24,6 @@ export const schema = {};
       inject: [ConfigService],
     },
   ],
+  exports: [DATABASE_CONNECTION],
 })
 export class DatabaseModule {}
