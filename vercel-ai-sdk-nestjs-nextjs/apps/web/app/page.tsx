@@ -3,6 +3,7 @@
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useRef, useState } from 'react';
+import { WeatherCard } from '../components/WeatherCard';
 
 export default function Home() {
   const [selectedModel, setSelectedModel] = useState<string>(
@@ -18,6 +19,8 @@ export default function Home() {
       body: () => ({ model: selectedModelRef.current }),
     }),
   });
+
+  console.log(messages);
 
   const [input, setInput] = useState('');
   return (
@@ -62,6 +65,15 @@ export default function Home() {
                         <div key={index} className='whitespace-pre-wrap'>
                           {part.text}
                         </div>
+                      );
+                    }
+
+                    if (
+                      part.type === 'tool-getWeather' &&
+                      part.state === 'output-available'
+                    ) {
+                      return (
+                        <WeatherCard key={index} data={part.output as any} />
                       );
                     }
                     return null;
