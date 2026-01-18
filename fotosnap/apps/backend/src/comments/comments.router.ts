@@ -2,6 +2,8 @@ import { Ctx, Input, Mutation, Query, Router } from '@mguay/nestjs-trpc';
 import { AuthTRPCMiddleware } from 'src/auth/auth-trpc.middleware';
 import { UseMiddlewares } from '@mguay/nestjs-trpc';
 import { CommentsService } from './comments.service';
+import { AppContext } from 'src/app.context.interface';
+import z from 'zod';
 import {
   commentSchema,
   CreateCommentInput,
@@ -11,8 +13,6 @@ import {
   GetCommentsInput,
   getCommentsSchema,
 } from '@repo/trpc/schemas';
-import { AppContext } from 'src/app.context.interface';
-import z from 'zod';
 
 @Router()
 @UseMiddlewares(AuthTRPCMiddleware)

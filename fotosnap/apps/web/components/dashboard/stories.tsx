@@ -2,60 +2,41 @@ import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { authClient } from '@/lib/auth/client';
 import { getImageUrl } from '@/lib/image';
-import { UserIcon } from 'lucide-react';
+import { Plus, User, UserIcon } from 'lucide-react';
+import { StoryGroup } from '@repo/trpc/schemas';
+import { useState } from 'react';
+import { Button } from '../ui/button';
 
-interface Story {
-  id: string;
-  username: string;
-  avatar: string;
+interface StoriesProps {
+  storyGroups: StoryGroup[];
+  onStoryUpload: (file: File) => Promise<void>;
 }
 
-const mockStories: Story[] = [
-  {
-    id: '1',
-    username: 'john_doe',
-    avatar:
-      'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=facearea&w=60&h=60&facepad=2',
-  },
-
-  {
-    id: '2',
-    username: 'jane_doe',
-    avatar:
-      'https://images.unsplash.com/photo-1511367461989-f85a21fda167?auto=format&fit=facearea&w=60&h=60&facepad=2',
-  },
-
-  {
-    id: '3',
-    username: 'jim_beam',
-    avatar:
-      'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?auto=format&fit=facearea&w=60&h=60&facepad=2',
-  },
-
-  {
-    id: '4',
-    username: 'jill_bean',
-    avatar:
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=facearea&w=60&h=60&facepad=2',
-  },
-
-  {
-    id: '5',
-    username: 'jack_smith',
-    avatar:
-      'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=facearea&w=60&h=60&facepad=2',
-  },
-];
-
-export default function Stories() {
+export default function Stories({ storyGroups, onStoryUpload }: StoriesProps) {
   const { data: session } = authClient.useSession();
+  const [showCreateStory, setShowCreateStory] = useState(false);
+  const [showStoryViewer, setShowStoryViewer] = useState(false);
+
+  const ownStoryGroup = storyGroups.find(
+    (group) => group.userId === session?.user?.id,
+  );
+  const otherStoryGroups = storyGroups.filter(
+    (group) => group.userId !== session?.user?.id,
+  );
 
   return (
     <Card className='p-4'>
       <div className='flex space-x-4 overflow-x-auto scrollbar-hide pb-2'>
         <div className='flex flex-col items-center space-y-1 flex-shrink-0'>
           <div className='relative'>
-            <div className='p-0.5 rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600 bg-gray-200'>
+            <div
+              className={`p-0.5 rounded-full ${ownStoryGroup ? `bg-gradient-to-tr from-yellow-400 to-fuchsia-600` : 'bg-gray-200'}`}
+              onClick={() => {
+                if (ownStoryGroup) {
+                  setShowStoryViewer(true);
+                }
+              }}
+            >
               {session?.user?.image ? (
                 <Image
                   src={getImageUrl(session?.user?.image)}
@@ -70,6 +51,13 @@ export default function Stories() {
                 </div>
               )}
             </div>
+            <Button
+              onClick={() => setShowCreateStory(true)}
+              size={'icon'}
+              className='absolute bottom-0 right-0 w-5 h-5 rounded-full border-2 border-white'
+            >
+              <Plus className='w-3 h-3' />
+            </Button>
           </div>
           <span
             className='text-xs text-center w-16 truncate'
@@ -78,27 +66,34 @@ export default function Stories() {
             Your Story
           </span>
         </div>
-        {mockStories.map((story) => (
+        {otherStoryGroups.map((storyGroup) => (
           <div
-            key={story.id}
+            key={storyGroup.userId}
             className='flex flex-col items-center space-y-1 flex-shrink-0'
+            onClick={() => setShowStoryViewer(true)}
           >
             <div className='relative'>
               <div className='p-0.5 rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600 bg-gray-200'>
-                <Image
-                  src={story.avatar}
-                  alt={story.username}
-                  width={64}
-                  height={64}
-                  className='w-16 h-16 rounded-full object-cover border-2 border-white'
-                />
+                {storyGroup.avatar ? (
+                  <Image
+                    src={getImageUrl(storyGroup.avatar)}
+                    alt={storyGroup.username}
+                    width={64}
+                    height={64}
+                    className='w-16 h-16 rounded-full object-cover border-2 border-white'
+                  />
+                ) : (
+                  <div className='w-16 h-16 rounded-full bg-muted flex items-center justify-center border-2 border-white'>
+                    <User className='w-6 h-6 text-muted-foreground' />
+                  </div>
+                )}
               </div>
             </div>
             <span
               className='text-xs text-center w-16 truncate'
-              title={story.username}
+              title={storyGroup.username}
             >
-              {story.username}
+              {storyGroup.username}
             </span>
           </div>
         ))}

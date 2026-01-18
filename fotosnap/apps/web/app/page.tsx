@@ -14,6 +14,7 @@ export default function Home() {
 
   const utils = trpc.useUtils();
   const posts = trpc.postsRouter.findAll.useQuery();
+  const stories = trpc.storiesRouter.getStories.useQuery();
   const createPost = trpc.postsRouter.create.useMutation({
     onSuccess: () => {
       utils.postsRouter.findAll.invalidate();
@@ -66,6 +67,31 @@ export default function Home() {
     },
   });
 
+  const createStory = trpc.storiesRouter.createStory.useMutation({
+    onSuccess: () => {
+      utils.storiesRouter.getStories.invalidate();
+    },
+  });
+
+  const handleStoryUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const response = await fetch('/api/upload/image', {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok) {
+      const { filename } = await response.json();
+      await createStory.mutateAsync({
+        image: filename,
+      });
+    } else {
+      console.error('Failed to upload photo');
+    }
+  };
+
   const handlePhotoUpload = async (file: File, caption: string) => {
     const formData = new FormData();
     formData.append('image', file);
@@ -91,7 +117,10 @@ export default function Home() {
       <div className='max-w-6xl mx-auto px-4 py-8'>
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-8'>
           <div className='lg:col-span-2 space-y-6'>
-            <Stories />
+            <Stories
+              storyGroups={stories.data ?? []}
+              onStoryUpload={handleStoryUpload}
+            />
             <Feed
               posts={posts.data ?? []}
               onLikePost={(postId) => likePost.mutate({ postId })}

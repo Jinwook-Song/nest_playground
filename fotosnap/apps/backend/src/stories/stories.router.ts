@@ -1,20 +1,14 @@
-import {
-  Ctx,
-  Input,
-  Query,
-  Mutation,
-  UseMiddlewares,
-} from '@mguay/nestjs-trpc';
+import { Ctx, Input, Mutation, Query, Router } from '@mguay/nestjs-trpc';
 import { AuthTRPCMiddleware } from 'src/auth/auth-trpc.middleware';
-import { Router } from '@mguay/nestjs-trpc';
+import { UseMiddlewares } from '@mguay/nestjs-trpc';
 import { AppContext } from 'src/app.context.interface';
+import { StoriesService } from './stories.service';
+import z from 'zod';
 import {
   CreateStoryInput,
   createStorySchema,
   storyGroupSchema,
 } from '@repo/trpc/schemas';
-import { StoriesService } from './stories.service';
-import z from 'zod';
 
 @Router()
 @UseMiddlewares(AuthTRPCMiddleware)
