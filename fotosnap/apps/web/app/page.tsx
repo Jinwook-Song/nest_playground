@@ -13,7 +13,7 @@ export default function Home() {
   const [isPhotoUploadOpen, setIsPhotoUploadOpen] = useState(false);
 
   const utils = trpc.useUtils();
-  const posts = trpc.postsRouter.findAll.useQuery();
+  const posts = trpc.postsRouter.findAll.useQuery({});
   const stories = trpc.storiesRouter.getStories.useQuery();
   const createPost = trpc.postsRouter.create.useMutation({
     onSuccess: () => {
@@ -24,7 +24,7 @@ export default function Home() {
   // Optimistic update for like functionality
   const likePost = trpc.postsRouter.likePost.useMutation({
     onMutate: ({ postId }) => {
-      utils.postsRouter.findAll.setData(undefined, (oldPosts) => {
+      utils.postsRouter.findAll.setData({}, (oldPosts) => {
         if (!oldPosts) return oldPosts;
 
         return oldPosts.map((post) => {
@@ -48,7 +48,7 @@ export default function Home() {
         postId: variables.postId,
       });
       // cache update
-      utils.postsRouter.findAll.setData(undefined, (oldPosts) => {
+      utils.postsRouter.findAll.setData({}, (oldPosts) => {
         if (!oldPosts) return oldPosts;
 
         return oldPosts.map((post) => {

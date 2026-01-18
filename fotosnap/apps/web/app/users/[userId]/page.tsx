@@ -7,6 +7,7 @@ import ProfileHeader from '@/components/users/profile-header';
 import { useState } from 'react';
 import { authClient } from '@/lib/auth/client';
 import { Post, UpdateProfileInput } from '@repo/trpc/schemas';
+import { ProfileTabs } from '@/components/users/profile-tabs';
 
 export default function ProfilePage() {
   const params = useParams();
@@ -29,6 +30,10 @@ export default function ProfilePage() {
   const { data: profile, isLoading } = trpc.usersRouter.getUserProfile.useQuery(
     { userId },
   );
+
+  const { data: posts = [] } = trpc.postsRouter.findAll.useQuery({
+    userId,
+  });
 
   const unfollowMutation = trpc.usersRouter.unfollow.useMutation({
     onSuccess: () => {
@@ -106,6 +111,13 @@ export default function ProfilePage() {
           isFollowLoading={
             followMutation.isPending || unfollowMutation.isPending
           }
+        />
+
+        <ProfileTabs
+          userPosts={posts}
+          savedPosts={[]}
+          name={profile.name}
+          onPostClick={handlePostClick}
         />
       </div>
     </div>
