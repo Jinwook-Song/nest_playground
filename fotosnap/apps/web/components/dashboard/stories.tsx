@@ -6,6 +6,8 @@ import { Plus, User, UserIcon } from 'lucide-react';
 import { StoryGroup } from '@repo/trpc/schemas';
 import { useState } from 'react';
 import { Button } from '../ui/button';
+import StoryUpload from './story-upload';
+import { StoryViewer } from './story-viewer';
 
 interface StoriesProps {
   storyGroups: StoryGroup[];
@@ -16,6 +18,7 @@ export default function Stories({ storyGroups, onStoryUpload }: StoriesProps) {
   const { data: session } = authClient.useSession();
   const [showCreateStory, setShowCreateStory] = useState(false);
   const [showStoryViewer, setShowStoryViewer] = useState(false);
+  const [selectedStoryGroupIndex, setSelectedStoryGroupIndex] = useState(0);
 
   const ownStoryGroup = storyGroups.find(
     (group) => group.userId === session?.user?.id,
@@ -33,6 +36,7 @@ export default function Stories({ storyGroups, onStoryUpload }: StoriesProps) {
               className={`p-0.5 rounded-full ${ownStoryGroup ? `bg-gradient-to-tr from-yellow-400 to-fuchsia-600` : 'bg-gray-200'}`}
               onClick={() => {
                 if (ownStoryGroup) {
+                  setSelectedStoryGroupIndex(0);
                   setShowStoryViewer(true);
                 }
               }}
@@ -66,11 +70,14 @@ export default function Stories({ storyGroups, onStoryUpload }: StoriesProps) {
             Your Story
           </span>
         </div>
-        {otherStoryGroups.map((storyGroup) => (
+        {otherStoryGroups.map((storyGroup, index) => (
           <div
             key={storyGroup.userId}
             className='flex flex-col items-center space-y-1 flex-shrink-0'
-            onClick={() => setShowStoryViewer(true)}
+            onClick={() => {
+              setSelectedStoryGroupIndex(ownStoryGroup ? index + 1 : index);
+              setShowStoryViewer(true);
+            }}
           >
             <div className='relative'>
               <div className='p-0.5 rounded-full bg-gradient-to-tr from-yellow-400 to-fuchsia-600 bg-gray-200'>
@@ -98,6 +105,19 @@ export default function Stories({ storyGroups, onStoryUpload }: StoriesProps) {
           </div>
         ))}
       </div>
+
+      <StoryUpload
+        open={showCreateStory}
+        onOpenChange={setShowCreateStory}
+        onSubmit={onStoryUpload}
+      />
+
+      <StoryViewer
+        storyGroups={storyGroups}
+        open={showStoryViewer}
+        onOpenChange={setShowStoryViewer}
+        initialGroupIndex={selectedStoryGroupIndex}
+      />
     </Card>
   );
 }
