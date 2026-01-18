@@ -5,36 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1759859012366,
-      "tag": "0000_fantastic_master_mold",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1759903307275,
-      "tag": "0001_mighty_star_brand",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1760272226334,
-      "tag": "0002_natural_king_bedlam",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1761141841600,
-      "tag": "0003_real_rage",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1768713854264,
-      "tag": "0004_steep_orphan",
+      "when": 1768730295783,
+      "tag": "0000_aromatic_spectrum",
       "breakpoints": true
     }
   ]
