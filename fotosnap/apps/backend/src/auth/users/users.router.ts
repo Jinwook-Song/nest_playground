@@ -24,7 +24,7 @@ import z from 'zod';
 export class UsersRouter {
   constructor(private readonly usersService: UsersService) {}
   @Mutation({ input: userIdSchema })
-  async folow(@Input() input: UserIdInput, @Ctx() context: AppContext) {
+  async follow(@Input() input: UserIdInput, @Ctx() context: AppContext) {
     return this.usersService.follow(context.user.id, input.userId);
   }
 

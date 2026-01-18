@@ -12,7 +12,7 @@ const appRouter = t.router({
     likePost: publicProcedure.input(likePostSchema).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any)
   }),
   usersRouter: t.router({
-    folow: publicProcedure.input(userIdSchema).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
+    follow: publicProcedure.input(userIdSchema).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     unfollow: publicProcedure.input(userIdSchema).mutation(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     getFollowers: publicProcedure.input(userIdSchema).output(z.array(userSchema)).query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
     getFollowing: publicProcedure.input(userIdSchema).output(z.array(userSchema)).query(async () => "PLACEHOLDER_DO_NOT_REMOVE" as any),
