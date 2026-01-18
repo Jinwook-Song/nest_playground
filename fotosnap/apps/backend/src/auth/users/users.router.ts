@@ -61,6 +61,6 @@ export class UsersRouter {
     @Input() input: UserIdInput,
     @Ctx() context: AppContext,
   ) {
-    return this.usersService.getUserProfile(context.user.id, input.userId);
+    return this.usersService.getUserProfile(input.userId, context.user.id);
   }
 }

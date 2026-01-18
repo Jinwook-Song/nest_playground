@@ -19,6 +19,37 @@ export class UsersService {
     private readonly db: NodePgDatabase<typeof schema>,
   ) {}
 
+  private profileSelect(currentUserId: string) {
+    return {
+      id: user.id,
+      name: user.name,
+      image: user.image,
+      bio: user.bio,
+      website: user.website,
+      followerCount: sql<number>`(
+        SELECT COUNT(*)::int
+        FROM "follow" f
+        WHERE f.following_id = "user"."id"
+      )`,
+      followingCount: sql<number>`(
+        SELECT COUNT(*)::int
+        FROM "follow" f
+        WHERE f.follower_id = "user"."id"
+      )`,
+      postCount: sql<number>`(
+        SELECT COUNT(*)::int
+        FROM "post" p
+        WHERE p.user_id = "user"."id"
+      )`,
+      isFollowing: sql<boolean>`EXISTS(
+        SELECT 1
+        FROM "follow" f
+        WHERE f.follower_id = ${currentUserId}
+          AND f.following_id = "user"."id"
+      )`,
+    };
+  }
+
   async findById(id: string) {
     const foundUser = await this.db.query.user.findFirst({
       where: eq(schema.user.id, id),
@@ -127,40 +158,12 @@ export class UsersService {
     currentUserId: string,
   ): Promise<UserProfile> {
     const result = await this.db
-      .select({
-        id: user.id,
-        name: user.name,
-        image: user.image,
-        bio: user.bio,
-        website: user.website,
-        followerCount: sql<number>`(
-        SELECT COUNT(*)::int
-        FROM $(follow) f
-        WHERE f.${follow.followingId} = ${user}.${user.id}
-      )`,
-        followingCount: sql<number>`(
-        SELECT COUNT(*)::int
-        FROM $(follow) f
-        WHERE f.${follow.followerId} = ${user}.${user.id}
-      )`,
-        postCount: sql<number>`(
-        SELECT COUNT(*)::int
-        FROM $(post) p
-        WHERE p.${post.userId} = ${user}.${user.id}
-      )`,
-        isFollowing: sql<boolean>`EXISTS(
-        SELECT 1
-        FROM $(follow) f
-        WHERE f.${follow.followerId} = ${currentUserId}
-          AND f.${follow.followingId} = ${user}.${user.id}
-      )`,
-      })
+      .select(this.profileSelect(currentUserId))
       .from(user)
       .where(eq(user.id, userId));
 
     return result[0] || null;
   }
-
   async updateProfile(userId: string, updates: UpdateProfileInput) {
     await this.db.update(user).set(updates).where(eq(user.id, userId));
   }
